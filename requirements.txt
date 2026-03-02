@@ -1,0 +1,22 @@
+# Core
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+
+# Deep Learning
+torch
+torchvision
+
+# Transformers
+transformers
+datasets
+accelerate
+
+# Evaluation
+scipy
+
+# Notebooks
+jupyter
+ipykernel
