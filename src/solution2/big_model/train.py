@@ -101,7 +101,7 @@ def train() -> None:
     print(f"[train] Device: {device}")
 
     # ── Tokeniser & datasets ───────────────────────────────────────────────────
-    tokenizer = AutoTokenizer.from_pretrained(config.MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(config.MODEL_NAME, token=config.HF_TOKEN)
 
     train_ds = AVDataset(config.TRAIN_FILE, tokenizer, config.MAX_LENGTH)
     dev_ds   = AVDataset(config.DEV_FILE,   tokenizer, config.MAX_LENGTH)
@@ -115,10 +115,11 @@ def train() -> None:
     print(f"[train] Train: {len(train_ds)} samples | Dev: {len(dev_ds)} samples")
 
     # ── Model ──────────────────────────────────────────────────────────────────
-    model = AVCrossEncoder(model_name=config.MODEL_NAME).to(device)
+    model = AVCrossEncoder(model_name=config.MODEL_NAME, token=config.HF_TOKEN).to(device)
+    model = model.float() # Force all master weights to FP32 for PyTorch AMP compatibility
 
-    # Gradient checkpointing saves ~40 % VRAM at the cost of ~20 % speed
-    model.encoder.gradient_checkpointing_enable()
+    # Disable gradient checkpointing as it critically conflicts with nn.DataParallel + PyTorch AMP FP16
+    # model.encoder.gradient_checkpointing_enable()
 
     if torch.cuda.device_count() > 1:
         print(f"[train] Using {torch.cuda.device_count()} GPUs via nn.DataParallel!")
@@ -136,7 +137,7 @@ def train() -> None:
     scheduler = get_linear_schedule_with_warmup(
         optimizer, num_warmup_steps=warmup_steps, num_training_steps=total_steps
     )
-    scaler    = torch.cuda.amp.GradScaler(enabled=config.FP16)
+    scaler    = torch.amp.GradScaler('cuda', enabled=config.FP16)
     criterion = nn.BCEWithLogitsLoss()
 
     # ── Training ───────────────────────────────────────────────────────────────
@@ -155,7 +156,7 @@ def train() -> None:
                 token_type_ids = token_type_ids.to(device)
             labels = batch["labels"].to(device)
 
-            with torch.cuda.amp.autocast(enabled=config.FP16):
+            with torch.amp.autocast('cuda', enabled=config.FP16):
                 logits = model(input_ids, attention_mask, token_type_ids)
                 loss   = criterion(logits, labels) / config.GRAD_ACCUM
 
