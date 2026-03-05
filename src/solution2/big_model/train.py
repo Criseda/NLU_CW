@@ -16,7 +16,7 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from torch.optim import AdamW
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score
 from tqdm import tqdm
 
 from . import config
@@ -84,9 +84,14 @@ def evaluate(model: AVCrossEncoder, loader: DataLoader, device: torch.device) ->
     all_labels = torch.cat(all_labels).numpy().astype(int)
     preds      = (all_logits > 0).astype(int)    # threshold at 0 (pre-sigmoid)
 
+    probs = torch.sigmoid(torch.tensor(all_logits)).numpy()
+
     return {
-        "f1":       f1_score(all_labels, preds),
-        "accuracy": accuracy_score(all_labels, preds),
+        "f1":        f1_score(all_labels, preds),
+        "accuracy":  accuracy_score(all_labels, preds),
+        "precision": precision_score(all_labels, preds, zero_division=0),
+        "recall":    recall_score(all_labels, preds, zero_division=0),
+        "roc_auc":   roc_auc_score(all_labels, probs),
     }
 
 
@@ -180,7 +185,10 @@ def train() -> None:
                         f"\n  Step {global_step} | "
                         f"Loss {running_loss / config.EVAL_STEPS:.4f} | "
                         f"F1 {metrics['f1']:.4f} | "
-                        f"Acc {metrics['accuracy']:.4f}"
+                        f"Acc {metrics['accuracy']:.4f} | "
+                        f"Prec {metrics['precision']:.4f} | "
+                        f"Rec {metrics['recall']:.4f} | "
+                        f"AUC {metrics['roc_auc']:.4f}"
                     )
                     running_loss = 0.0
                     model.train()
@@ -197,7 +205,11 @@ def train() -> None:
         metrics = evaluate(model, dev_loader, device)
         print(
             f"\n[Epoch {epoch+1}] F1 {metrics['f1']:.4f} | "
-            f"Acc {metrics['accuracy']:.4f} | Best F1 so far: {best_f1:.4f}"
+            f"Acc {metrics['accuracy']:.4f} | "
+            f"Prec {metrics['precision']:.4f} | "
+            f"Rec {metrics['recall']:.4f} | "
+            f"AUC {metrics['roc_auc']:.4f} | "
+            f"Best F1 so far: {best_f1:.4f}"
         )
 
     print(f"\n[train] Done. Best dev F1: {best_f1:.4f}")
