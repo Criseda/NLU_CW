@@ -10,9 +10,16 @@
 #SBATCH -o logs/sweep-%j.out      # Standard output log
 #SBATCH -e logs/sweep-%j.err      # Standard error log
 
-# 1. Environment Setup
-module load miniforge3/24.3.0-py3.10
-source activate nlu_big_model
+# 1. Clean environment and load modules
+module purge
+module load apps/binapps/conda/miniforge3/25.9.1
+module load libs/cuda/12.4.1       # Recommended CUDA version for A100
+
+# 2. Activate Conda environment
+conda activate nlu_big_model
+
+# 3. Optimize multiprocessing
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 # 2. Logging and Project Location
 echo "Starting job on node: $SLURMD_NODENAME"
@@ -20,22 +27,26 @@ echo "Job ID: $SLURM_JOB_ID"
 echo "Working directory: $SLURM_SUBMIT_DIR"
 cd $SLURM_SUBMIT_DIR
 
-# 3. Fast NVMe Storage Transfer ($TMPDIR)
-# Move code and data to local node storage to prevent IO bottlenecks
-echo "Copying project to NVMe storage ($TMPDIR/repo)..."
-mkdir -p $TMPDIR/repo
-cp -r src data models outputs requirements.txt .env $TMPDIR/repo/
-cd $TMPDIR/repo
+# 4. Fast NVMe Storage Transfer ($TMPDIR)
+echo "Copying project to NVMe storage ($TMPDIR)..."
+REPO_ROOT=$(realpath "$SLURM_SUBMIT_DIR/../../..")
+cp -r "$REPO_ROOT" "$TMPDIR/repo"
 
-# 4. Execute the Grid Search Script
+cd "$TMPDIR/repo"
+
+# 5. Execute the Grid Search Script
 echo "Starting overnight grid search..."
 python -m src.solution2.big_model.train_multiple
 echo "Grid search complete."
 
-# 5. Extract the precious models back to permanent storage!
+# 6. Extract the precious models back to permanent storage!
 echo "Copying sweep results back to central storage..."
-cd $SLURM_SUBMIT_DIR
-cp -ru $TMPDIR/repo/models/solution2/big_model/* models/solution2/big_model/
-cp -ru $TMPDIR/repo/outputs/solution2/big_model/* outputs/solution2/big_model/
+mkdir -p "$REPO_ROOT/models/solution2/big_model"
+mkdir -p "$REPO_ROOT/outputs/solution2/big_model"
+mkdir -p "$TMPDIR/repo/models/solution2/big_model"
+mkdir -p "$TMPDIR/repo/outputs/solution2/big_model"
+
+cp -ru "$TMPDIR/repo/models/solution2/big_model/"* "$REPO_ROOT/models/solution2/big_model/"
+cp -ru "$TMPDIR/repo/outputs/solution2/big_model/"* "$REPO_ROOT/outputs/solution2/big_model/"
 
 echo "Submission script finished gracefully."
