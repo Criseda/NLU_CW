@@ -5,7 +5,7 @@
 #SBATCH -G 2                      # Request 2 GPUs
 #SBATCH -t 06:00:00               # Wallclock limit: 6 hours
 #SBATCH -n 1                      # 1 task
-#SBATCH -c 24                     # 24 CPU cores (12 per GPU maximum for A100)
+#SBATCH -c 8                      # 8 CPU cores (12 per GPU maximum)
 #SBATCH -J big_model_nlu          # Job name
 #SBATCH -o logs/slurm-%j.out      # Standard output log
 #SBATCH -e logs/slurm-%j.err      # Standard error log
