@@ -1,20 +1,19 @@
-# COMP34812 NLU Shared Task — Group [n]
+# COMP34812 NLU Shared Task
 
-> **Track:** [A / B / C] — [NLI / ED / AV]
+> **Track:** C — Authorship Verification
 
 ## Project Structure
 
 ```
 NLU_CW/
 ├── data/                    # All data (trial, training, test)
-├── eda/                    # Exploratory Data Analysis on each track
+├── eda/                     # Exploratory Data Analysis on each track
 ├── notebooks/
-│   ├── exploration.ipynb    # EDA & data analysis
-│   ├── demo_solution1.ipynb # Inference demo — Solution 1 (Category _)
-│   └── demo_solution2.ipynb # Inference demo — Solution 2 (Category _)
+│   ├── demo_solutionA.ipynb # Inference demo — Solution A (Category C)
+│   └── demo_solutionC.ipynb # Inference demo — Solution C (Category C)
 ├── src/
-│   ├── solution1/           # Training code for Solution 1
-│   ├── solution2/           # Training code for Solution 2
+│   ├── solution1/           # Training code for Solution A
+│   ├── solution2/           # Training code for Solution C
 │   ├── evaluation/          # Evaluation scripts (F1, accuracy, etc.)
 │   └── utils/               # Shared utilities (data loading, preprocessing)
 ├── models/                  # Saved model weights (large files on OneDrive)
