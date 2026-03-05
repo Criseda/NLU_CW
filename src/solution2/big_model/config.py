@@ -28,9 +28,9 @@ TRUNCATION = "longest_first"  # Shrinks the longer text first when pair exceeds 
 EPOCHS          = 5
 BATCH_SIZE      = 8       # Per-device; reduce if OOM
 GRAD_ACCUM      = 2       # Effective batch = BATCH_SIZE * GRAD_ACCUM = 16
-LEARNING_RATE   = 2e-5
+LEARNING_RATE   = 1e-5
 WEIGHT_DECAY    = 0.01
-WARMUP_RATIO    = 0.06    # 6 % of total steps used for LR warmup
+WARMUP_RATIO    = 0.1    # 10 % of total steps used for LR warmup
 MAX_GRAD_NORM   = 1.0
 FP16            = True    # Mixed-precision — set False on CPU
 
