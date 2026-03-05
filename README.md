@@ -7,6 +7,7 @@
 ```
 NLU_CW/
 ├── data/                    # All data (trial, training, test)
+├── eda/                    # Exploratory Data Analysis on each track
 ├── notebooks/
 │   ├── exploration.ipynb    # EDA & data analysis
 │   ├── demo_solution1.ipynb # Inference demo — Solution 1 (Category _)
