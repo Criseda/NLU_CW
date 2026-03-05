@@ -5,9 +5,20 @@ Edit this file to tune training without touching any other file.
 
 import os
 
+# ── Load environment variables (HF_TOKEN) ────────────────────────────────────────────────
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+
+try:
+    from dotenv import load_dotenv
+    env_path = os.path.join(ROOT_DIR, ".env")
+    load_dotenv(dotenv_path=env_path)
+except ImportError:
+    pass
+
 # ── Model ──────────────────────────────────────────────────────────────────────
 MODEL_NAME = "microsoft/deberta-v3-large"   # Best single model on NLU benchmarks
 NUM_LABELS = 1                               # Binary → BCEWithLogitsLoss
+HF_TOKEN   = os.environ.get("HF_TOKEN", None) # Optional HuggingFace token for rate limits
 
 # ── Tokenisation ───────────────────────────────────────────────────────────────
 MAX_LENGTH = 512          # Fits most AV pairs comfortably; raise to 1024 with truncation="longest_first"

@@ -20,13 +20,13 @@ class AVCrossEncoder(nn.Module):
     that the loss function stays numerically stable.
     """
 
-    def __init__(self, model_name: str, dropout: float = 0.1):
+    def __init__(self, model_name: str, dropout: float = 0.1, token: str | None = None):
         super().__init__()
-        config = AutoConfig.from_pretrained(model_name)
+        config = AutoConfig.from_pretrained(model_name, token=token)
         config.attention_probs_dropout_prob = dropout
         config.hidden_dropout_prob = dropout
 
-        self.encoder = AutoModel.from_pretrained(model_name, config=config)
+        self.encoder = AutoModel.from_pretrained(model_name, config=config, token=token)
         hidden_size = config.hidden_size              # 1024 for deberta-v3-large
 
         self.classifier = nn.Sequential(
@@ -63,13 +63,13 @@ class AVCrossEncoder(nn.Module):
         return logits
 
 
-def load_model(model_name: str, checkpoint_path: str | None = None) -> AVCrossEncoder:
+def load_model(model_name: str, checkpoint_path: str | None = None, token: str | None = None) -> AVCrossEncoder:
     """
     Convenience loader.
       - If checkpoint_path is None  → returns freshly initialised model.
       - If checkpoint_path is given → loads saved state_dict on top.
     """
-    model = AVCrossEncoder(model_name=model_name)
+    model = AVCrossEncoder(model_name=model_name, token=token)
     if checkpoint_path is not None:
         state = torch.load(checkpoint_path, map_location="cpu")
         model.load_state_dict(state)

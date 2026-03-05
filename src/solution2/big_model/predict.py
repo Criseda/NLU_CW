@@ -68,7 +68,7 @@ def predict_probs(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"[predict] Device: {device}")
 
-    tokenizer = AutoTokenizer.from_pretrained(config.MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(config.MODEL_NAME, token=config.HF_TOKEN)
     df        = pd.read_csv(csv_path)
 
     dataset = AVInferenceDataset(df, tokenizer, config.MAX_LENGTH)
@@ -80,7 +80,7 @@ def predict_probs(
         pin_memory=True,
     )
 
-    model = load_model(config.MODEL_NAME, checkpoint_path=checkpoint_path).to(device)
+    model = load_model(config.MODEL_NAME, checkpoint_path=checkpoint_path, token=config.HF_TOKEN).to(device)
     model.eval()
 
     all_ids, all_probs = [], []
