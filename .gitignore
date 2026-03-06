@@ -24,3 +24,4 @@ models/*
 
 # Solution 1
 src/solution1/features/*
+src/solution1/models/*
