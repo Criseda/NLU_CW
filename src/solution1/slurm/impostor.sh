@@ -10,7 +10,7 @@ module load apps/binapps/anaconda3/2023.09
 conda activate av_env
 
 python src/solution1/training/compute_imposter.py \
-    --input     data/train.csv \
+    --input     data/training_data/AV/train.csv \
     --output    src/solution1/features/impostor_train.npy \
     --n_jobs    $SLURM_NTASKS \
     --n_trials  100 \

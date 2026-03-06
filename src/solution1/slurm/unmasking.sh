@@ -10,6 +10,6 @@ module load apps/binapps/anaconda3/2023.09
 conda activate av_env
 
 python src/solution1/training/compute_unmasking.py \
-    --input  data/train.csv \
+    --input  data/training_data/AV/train.csv \
     --output src/solution1/features/unmasking_train.npy \
     --n_jobs $SLURM_NTASKS
