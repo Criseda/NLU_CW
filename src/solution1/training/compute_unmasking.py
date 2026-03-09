@@ -1,106 +1,122 @@
 import numpy as np
 import argparse
-import pickle
+import zlib
 from pathlib import Path
 
 import pandas as pd
-from sklearn.svm import LinearSVC
-from sklearn.model_selection import cross_val_score
-from sklearn.feature_extraction.text import CountVectorizer
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
 
-def unmasking_features(
-    text_a: str,
-    text_b: str,
-    n_rounds: int = 10,
-    k_remove: int = 6,
-    chunk_size: int = 500,
-) -> list:
+def _char_distribution(text: str) -> np.ndarray:
     """
-    Compute unmasking degradation curve for a single pair.
-    Returns 8 features derived from the accuracy-vs-round curve.
-    Designed to be run in parallel across pairs on HPC.
+    Compute a normalised character unigram probability distribution
+    over all 256 possible byte values (covers ASCII + Unicode chars).
     """
-    # Chunk both texts
-    words_a = text_a.split()
-    words_b = text_b.split()
-    chunks_a = [' '.join(words_a[i:i+chunk_size])
-                for i in range(0, len(words_a), chunk_size) if len(words_a[i:i+chunk_size]) > 50]
-    chunks_b = [' '.join(words_b[i:i+chunk_size])
-                for i in range(0, len(words_b), chunk_size) if len(words_b[i:i+chunk_size]) > 50]
+    counts = np.zeros(256, dtype=np.float64)
+    for byte in text.encode('utf-8', errors='replace'):
+        counts[byte] += 1
+    total = counts.sum()
+    if total == 0:
+        return np.ones(256, dtype=np.float64) / 256  # uniform fallback
+    return counts / total
 
-    # Need at least 3 chunks per side for meaningful CV
-    if len(chunks_a) < 3 or len(chunks_b) < 3:
-        return [np.nan] * 8  # imputed with training median later
 
-    labels = [0] * len(chunks_a) + [1] * len(chunks_b)
-    all_chunks = chunks_a + chunks_b
+def _shannon_entropy(p: np.ndarray) -> float:
+    """H(p) = -sum(p * log2(p)) over non-zero elements."""
+    nz = p[p > 0]
+    return float(-np.sum(nz * np.log2(nz)))
 
-    # Vectorise: char 3-grams, top 1000 features
-    vec = CountVectorizer(analyzer='char', ngram_range=(3, 3), max_features=1000)
-    X = vec.fit_transform(all_chunks).toarray().astype(float)
-    y = np.array(labels)
 
-    n_folds = min(5, min(len(chunks_a), len(chunks_b)))
-    accuracies = []
+def _cross_entropy(p: np.ndarray, q: np.ndarray, eps: float = 1e-12) -> float:
+    """H(p, q) = -sum(p * log2(q)) — how well q predicts p."""
+    return float(-np.sum(p * np.log2(q + eps)))
 
-    # Degradation loop
-    for round_i in range(n_rounds):
-        if X.shape[1] < k_remove:
-            # No features left — pad with last accuracy
-            accuracies.append(accuracies[-1] if accuracies else 0.5)
-            continue
 
-        clf = LinearSVC(max_iter=5000, dual='auto')
-        try:
-            scores = cross_val_score(clf, X, y, cv=n_folds, scoring='accuracy')
-            acc = float(scores.mean())
-        except Exception:
-            acc = 0.5
-        accuracies.append(acc)
+def _kl_divergence(p: np.ndarray, q: np.ndarray, eps: float = 1e-12) -> float:
+    """KL(p || q) = sum(p * log(p/q))."""
+    nz = p > 0
+    return float(np.sum(p[nz] * np.log2(p[nz] / (q[nz] + eps))))
 
-        # Remove top-k most discriminative features (highest |weight|)
-        clf.fit(X, y)
-        importances = np.abs(clf.coef_[0])
-        top_k_idx = np.argsort(importances)[-k_remove:]
-        mask = np.ones(X.shape[1], dtype=bool)
-        mask[top_k_idx] = False
-        X = X[:, mask]
 
-    # Extract curve features
-    accs = np.array(accuracies)
-    drops = np.diff(accs)
-    slope = float(np.polyfit(range(len(accs)), accs, 1)[0]) if len(accs) > 1 else 0.0
+def _jsd(p: np.ndarray, q: np.ndarray) -> float:
+    """Jensen-Shannon divergence — symmetric, bounded in [0, 1]."""
+    m = 0.5 * (p + q)
+    return float(0.5 * _kl_divergence(p, m) + 0.5 * _kl_divergence(q, m))
+
+
+def _renyi_entropy_2(p: np.ndarray, eps: float = 1e-12) -> float:
+    """Rényi entropy of order 2: R2 = -log2(sum(p^2))."""
+    return float(-np.log2(np.sum(p ** 2) + eps))
+
+
+def _compression_ratio(text: str) -> float:
+    """Compressed size / original size — lower = more compressible = more repetitive."""
+    encoded = text.encode('utf-8')
+    if len(encoded) == 0:
+        return 1.0
+    return len(zlib.compress(encoded, level=9)) / len(encoded)
+
+
+def information_theoretic_features(text_a: str, text_b: str) -> list:
+    """
+    Compute 8 information-theoretic features for a pair of short texts.
+
+    Replaces Unmasking (Koppel & Schler, 2004), which requires long texts
+    (>1500 words for chunking). The AV dataset has avg ~100 words per text,
+    making Unmasking inapplicable. These features operate on character
+    distributions and work on texts of any length.
+
+    Features:
+      1. |H(a) - H(b)|       — Shannon entropy difference
+      2. H(p_b, p_a)         — cross-entropy (a's distrib. predicts b's chars)
+      3. H(p_a, p_b)         — cross-entropy (b's distrib. predicts a's chars)
+      4. KL(p_a || p_b)      — KL divergence
+      5. KL(p_b || p_a)      — KL divergence (reverse direction)
+      6. JSD(p_a, p_b)       — Jensen-Shannon divergence (symmetric)
+      7. |R2(a) - R2(b)|     — Rényi entropy (order 2) difference
+      8. |C(a) - C(b)|       — zlib compression ratio difference
+
+    References: Halvani et al. (2016), Cilibrasi & Vitányi (2005)
+    """
+    if not text_a or not text_b:
+        return [0.0] * 8
+
+    p_a = _char_distribution(text_a)
+    p_b = _char_distribution(text_b)
+
+    h_a = _shannon_entropy(p_a)
+    h_b = _shannon_entropy(p_b)
 
     return [
-        float(accs[0]),                                          # initial accuracy
-        float(accs[-1]),                                         # final accuracy
-        slope,                                                   # degradation slope (KEY signal)
-        float(np.min(drops)) if len(drops) > 0 else 0.0,        # max single-round drop
-        float(np.trapz(accs)),                                   # AUC under curve
-        float(accs[0] - accs[-1]),                               # total drop
-        float(next((i for i, a in enumerate(accs) if a < 0.6), len(accs))),  # collapse round
-        float(np.std(drops)) if len(drops) > 0 else 0.0,        # drop smoothness
+        abs(h_a - h_b),                                                   # 1. entropy diff
+        _cross_entropy(p_b, p_a),                                         # 2. cross-entropy a→b
+        _cross_entropy(p_a, p_b),                                         # 3. cross-entropy b→a
+        _kl_divergence(p_a, p_b),                                         # 4. KL(a||b)
+        _kl_divergence(p_b, p_a),                                         # 5. KL(b||a)
+        _jsd(p_a, p_b),                                                   # 6. JSD
+        abs(_renyi_entropy_2(p_a) - _renyi_entropy_2(p_b)),               # 7. Rényi diff
+        abs(_compression_ratio(text_a) - _compression_ratio(text_b)),     # 8. compression ratio diff
     ]
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input",   required=True, help="Path to raw CSV (with text_1, text_2 columns)")
-    parser.add_argument("--output",  required=True, help="Path to output .npy array")
-    parser.add_argument("--n_jobs",  type=int, default=1)
-    parser.add_argument("--limit",   type=int, default=None)
+    parser = argparse.ArgumentParser(
+        description="Compute 8 information-theoretic features per AV pair (short-text replacement for Unmasking)."
+    )
+    parser.add_argument("--input",  required=True, help="Path to raw CSV (text_1, text_2 columns)")
+    parser.add_argument("--output", required=True, help="Path to output .npy array (N, 8)")
+    parser.add_argument("--n_jobs", type=int, default=1)
+    parser.add_argument("--limit",  type=int, default=None)
     args = parser.parse_args()
 
     df = pd.read_csv(args.input)
     if args.limit:
         df = df.head(args.limit)
 
-    print(f"Computing unmasking features for {len(df)} pairs with {args.n_jobs} workers ...")
+    print(f"Computing information-theoretic features for {len(df)} pairs with {args.n_jobs} workers ...")
     results = Parallel(n_jobs=args.n_jobs, verbose=5)(
-        delayed(unmasking_features)(row["text_1"], row["text_2"])
+        delayed(information_theoretic_features)(row["text_1"], row["text_2"])
         for _, row in tqdm(df.iterrows(), total=len(df))
     )
 
@@ -108,8 +124,10 @@ def main():
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     np.save(output_path, arr)
-    print(f"Saved unmasking features {arr.shape} to {output_path}")
-    print(f"NaN rate: {np.isnan(arr).mean():.1%}  (pairs too short to unmask)")
+
+    print(f"Saved info-theoretic features {arr.shape} to {output_path}")
+    print(f"NaN rate: {np.isnan(arr).mean():.1%}")
+    print(f"Feature means: {np.nanmean(arr, axis=0).round(4)}")
 
 
 if __name__ == "__main__":

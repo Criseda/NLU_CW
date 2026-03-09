@@ -1,10 +1,10 @@
 #!/bin/bash --login
-#SBATCH --job-name=av_unmasking
+#SBATCH --job-name=av_infotheory
 #SBATCH --ntasks=32
 #SBATCH --mem=64G
-#SBATCH --time=04:00:00
+#SBATCH --time=01:00:00
 #SBATCH --partition=multicore
-#SBATCH --output=logs/unmasking_%j.out
+#SBATCH --output=logs/infotheory_%j.out
 
 module load apps/binapps/anaconda3/2023.09
 conda activate av_env
