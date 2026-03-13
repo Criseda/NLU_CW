@@ -95,9 +95,9 @@ def main():
     print("\n--- Model A2: LightGBM ---")
     def make_lgbm():
         return lgb.LGBMClassifier(
-            n_estimators=500, max_depth=6, learning_rate=0.05,
-            num_leaves=63, min_child_samples=20, subsample=0.8,
-            colsample_bytree=0.8, reg_alpha=0.1, reg_lambda=0.1,
+            n_estimators=2244, max_depth=12, learning_rate=0.011581618143829776,
+            num_leaves=192, min_child_samples=14, subsample=0.7529110437175728,
+            colsample_bytree=0.30971373819219955, reg_alpha=0.0015113404061990107, reg_lambda=0.11721921860723176,
             random_state=42, verbose=-1,
         )
     oof_a2, scores_a2 = train_and_oof(make_lgbm, X, y)  # LightGBM uses raw (not scaled)

@@ -11,6 +11,7 @@ wheels/
 
 # Data
 data/training_data/*
+data/train_labels.npy
 
 # Outputs
 outputs/*
@@ -25,3 +26,5 @@ models/*
 # Solution 1
 src/solution1/features/*
 src/solution1/models/*
+src/solution1/HPC_logs/*
+src/solution1/results/*

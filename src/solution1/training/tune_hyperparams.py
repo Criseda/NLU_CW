@@ -65,6 +65,8 @@ def main():
         objective = lambda trial: objective_lgbm(trial, X, y)
         study_name = "lgbm_tuning"
 
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     storage = f"sqlite:///{args.output}"
     study = optuna.create_study(
         study_name=study_name,
