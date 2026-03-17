@@ -2,7 +2,7 @@
 
 ### Partition and GPU configuration
 #SBATCH -p gpuA                   # gpuA selects A100 (80GB) partition, or gpuL for L40s partition
-#SBATCH -G 2                      # Request 2 GPUs
+#SBATCH -G 1                      # Request 1 GPU
 #SBATCH -t 06:00:00               # Wallclock limit: 6 hours
 #SBATCH -n 1                      # 1 task
 #SBATCH -c 8                      # 8 CPU cores (12 per GPU maximum)
