@@ -1,5 +1,6 @@
 import os
 import gc
+import time
 import torch
 from src.solution2.big_model import config
 from src.solution2.big_model.train import train
@@ -11,20 +12,20 @@ def main():
     Outputs are saved to dedicated subdirectories inside models/
     """
     
-    # Define our 4 targeted configs based on the successful 0.803 F1 run
-    # Focus: Balancing High Recall (0.83) with Precision (0.77). All runs take ~110 mins each.
+    # 1. Wallclock Safety Timer Setup
+    # The submit_multiple.slurm provides a 12-hour window. 
+    # We set a hard stop at 11.5 hours to guarantee plenty of time to copy NVMe files back.
+    start_time = time.time()
+    MAX_RUNTIME_HOURS = 11.5
+    MAX_RUNTIME_SECONDS = MAX_RUNTIME_HOURS * 3600
+    
+    # 2. Focused Learning Rate Sweep
+    # Narrow search for the optimal learning rate using the clean, unified baseline settings.
     configs_to_test = [
-        # 1. The Baseline Reproduction (Confirm the 0.803 score logic)
-        {"lr": 1e-5, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "name": "baseline_lr1e5_wd01"},
-        
-        # 2. High Regularization (Increase Weight Decay from 0.01 to 0.05 to penalize overconfident false positives)
-        {"lr": 1e-5, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.05, "name": "reg_lr1e5_wd05"},
-        
-        # 3. Smooth Explorer (Larger effective batch size to calculate a more precise gradient direction)
-        {"lr": 1e-5, "warmup": 0.10, "batch": 16, "grad_accum": 2, "weight_decay": 0.01, "name": "smooth_lr1e5_bs32"},
-        
-        # 4. Meticulous Learner (Slightly lower LR, longer warmup for more cautious feature extraction)
-        {"lr": 8e-6, "warmup": 0.15, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "name": "meticulous_lr8e6_wm15"},
+        {"lr": 3e-6, "warmup": 0.10, "batch": 8, "grad_accum": 2, "weight_decay": 0.01, "seed": 42, "name": "baseline_lr_3e6"},
+        {"lr": 5e-6, "warmup": 0.10, "batch": 8, "grad_accum": 2, "weight_decay": 0.01, "seed": 42, "name": "baseline_lr_5e6"},
+        {"lr": 7e-6, "warmup": 0.10, "batch": 8, "grad_accum": 2, "weight_decay": 0.01, "seed": 42, "name": "baseline_lr_7e6"},
+        {"lr": 1e-5, "warmup": 0.10, "batch": 8, "grad_accum": 2, "weight_decay": 0.01, "seed": 42, "name": "baseline_lr_1e5"},
     ]
 
     base_save_dir = config.MODEL_SAVE_DIR
@@ -33,6 +34,12 @@ def main():
     results_summary = []
 
     for i, run in enumerate(configs_to_test):
+        # 3. Wallclock Check before starting a new model
+        elapsed_time = time.time() - start_time
+        if elapsed_time > MAX_RUNTIME_SECONDS:
+            print(f"\n[sweep] ⏰ WARNING: Elapsed time ({elapsed_time/3600:.2f}h) exceeds safety limit ({MAX_RUNTIME_HOURS}h).")
+            print("[sweep] 🛑 Gracefully stopping the sweep so Slurm can copy the finished models back to permanent storage!")
+            break
         print(f"\n{'='*70}")
         print(f"| Starting Grid Search Run {i+1}/{len(configs_to_test)}")
         print(f"| Name: {run['name']}")
@@ -46,6 +53,7 @@ def main():
         config.BATCH_SIZE     = run["batch"]
         config.GRAD_ACCUM     = run["grad_accum"]
         config.WEIGHT_DECAY   = run["weight_decay"]
+        config.SEED           = run["seed"]
         config.MODEL_SAVE_DIR = os.path.join(base_save_dir, run["name"])
         config.OUTPUT_DIR     = os.path.join(base_out_dir, run["name"])
 
