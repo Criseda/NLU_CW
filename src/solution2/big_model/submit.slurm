@@ -2,10 +2,10 @@
 
 ### Partition and GPU configuration
 #SBATCH -p gpuA                   # gpuA selects A100 (80GB) partition, or gpuL for L40s partition
-#SBATCH -G 2                      # Request 2 GPUs
+#SBATCH -G 2                      # Request 1 or 2 GPUs
 #SBATCH -t 06:00:00               # Wallclock limit: 6 hours
 #SBATCH -n 1                      # 1 task
-#SBATCH -c 8                      # 8 CPU cores (12 per GPU maximum)
+#SBATCH -c 4                      # 4 CPU cores (12 per GPU maximum but i recoommend 4 per GPU)
 #SBATCH -J big_model_nlu          # Job name
 #SBATCH -o logs/slurm-%j.out      # Standard output log
 #SBATCH -e logs/slurm-%j.err      # Standard error log
@@ -51,3 +51,5 @@ mkdir -p "$TMPDIR/repo/outputs/solution2/big_model"
 # Copy the newly created big_model folders back
 cp -r "$TMPDIR/repo/models/solution2/big_model" "$REPO_ROOT/models/solution2/"
 cp -r "$TMPDIR/repo/outputs/solution2/big_model" "$REPO_ROOT/outputs/solution2/"
+
+echo "--- Job finished at $(date) ---"

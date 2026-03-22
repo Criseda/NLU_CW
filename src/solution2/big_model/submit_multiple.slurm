@@ -49,4 +49,4 @@ mkdir -p "$TMPDIR/repo/outputs/solution2/big_model"
 cp -ru "$TMPDIR/repo/models/solution2/big_model/"* "$REPO_ROOT/models/solution2/big_model/"
 cp -ru "$TMPDIR/repo/outputs/solution2/big_model/"* "$REPO_ROOT/outputs/solution2/big_model/"
 
-echo "Submission script finished gracefully."
+echo "--- Job finished at $(date) ---"
