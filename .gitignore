@@ -24,3 +24,9 @@ models/*
 
 # Secrets
 .env
+
+# MacOS
+.DS_Store
+
+# Generated feature arrays
+*.npy
