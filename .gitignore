@@ -22,6 +22,11 @@ models/*
 !outputs/.outputs_go_here
 !models/.saved_models_go_here
 
+# PyTorch and HuggingFace Weights
+*.pt
+*.bin
+*.safetensors
+
 # Secrets
 .env
 

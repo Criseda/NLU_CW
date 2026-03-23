@@ -65,10 +65,15 @@ def predict_probs(
         pair_id | prob | pred
     Also writes the result to outputs/solution2/big_probs_{split}.csv.
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if torch.backends.mps.is_available():
+        device = torch.device("mps")
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
     print(f"[predict] Device: {device}")
 
-    tokenizer = AutoTokenizer.from_pretrained(config.MODEL_NAME, token=config.HF_TOKEN)
+    tokenizer = AutoTokenizer.from_pretrained(config.MODEL_NAME, token=config.HF_TOKEN, use_fast=True)
     df        = pd.read_csv(csv_path)
 
     dataset = AVInferenceDataset(df, tokenizer, config.MAX_LENGTH)
