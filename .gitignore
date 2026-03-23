@@ -11,7 +11,7 @@ wheels/
 
 # Data
 data/training_data/*
-data/train_labels.npy
+data/*.npy
 
 # Outputs
 outputs/*
