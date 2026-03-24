@@ -10,7 +10,7 @@ The ensemble leverages a Late Fusion (Soft-Voting) approach running entirely ove
 2. **Big Model (Original):** `microsoft/deberta-v3-large` (Local F1: 0.7862)
 3. **Big Model (7931):** `microsoft/deberta-v3-large` (Local F1: 0.7701)
 4. **Big Model (803):** `microsoft/deberta-v3-large` (Local F1: 0.7932)
-5. **Big Model (8180):** `microsoft/deberta-v3-large` (Local F1: 0.8183)
+5. **Big Model (8180):** `microsoft/deberta-v3-large` (Local Macro F1: 0.7959)
 
 ### Fusion Strategy
 After extensive empirical tuning against the local AV `dev` split, a **5-model weighted soft-voting** mechanism was selected:
@@ -26,6 +26,7 @@ Metric tracking against the bundled local scorer reference (`25_DEV_NLI.csv` / `
 
 | Component                        | Accuracy | Macro Precision | Macro Recall | Macro F1   |
 | :------------------------------- | :------- | :-------------- | :----------- | :--------- |
+| **Standalone Big Model (8180)**  | 0.7984   | 0.8087          | 0.7965       | 0.7959     |
 | **ENSEMBLE (2-Model Weighted)**  | 0.7922   | 0.7961          | 0.7910       | 0.7910     |
 | **ENSEMBLE (4-Model Weighted)**  | 0.8012   | 0.8014          | 0.8009       | 0.8010     |
 | **🏆 ENSEMBLE (5-Model, 8180 Opt)**| 0.8053   | 0.8117          | 0.8038       | **0.8037** |
