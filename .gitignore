@@ -1,3 +1,6 @@
+# OS-generated files
+.DS_Store
+
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -28,3 +31,5 @@ src/solution1/features/*
 src/solution1/models/*
 src/solution1/HPC_logs/*
 src/solution1/results/*
+!src/solution1/results/*.md
+!src/solution1/results/*.py

@@ -1,14 +1,0 @@
-flatpak: /opt/apps/apps/binapps/anaconda3/2023.09/lib/libcrypto.so.3: version `OPENSSL_3.4.0' not found (required by /lib64/libostree-1.so.1)
-flatpak: /opt/apps/apps/binapps/anaconda3/2023.09/lib/libcrypto.so.3: version `OPENSSL_3.4.0' not found (required by /lib64/librpmio.so.9)
-Computing unmasking features for 27643 pairs with 32 workers ...
-  0%|          | 0/27643 [00:00<?, ?it/s][Parallel(n_jobs=32)]: Using backend LokyBackend with 32 concurrent workers.
-  0%|          | 32/27643 [00:00<04:40, 98.34it/s]  0%|          | 64/27643 [00:01<08:14, 55.73it/s][Parallel(n_jobs=32)]: Done   8 tasks      | elapsed:    1.1s
-[Parallel(n_jobs=32)]: Done  98 tasks      | elapsed:    1.2s
-  1%|          | 256/27643 [00:01<01:34, 288.62it/s][Parallel(n_jobs=32)]: Done 429 tasks      | elapsed:    1.3s
-  3%|▎         | 940/27643 [00:01<00:20, 1284.17it/s]  8%|▊         | 2219/27643 [00:01<00:07, 3336.25it/s] 15%|█▌        | 4223/27643 [00:01<00:03, 6727.72it/s][Parallel(n_jobs=32)]: Done 2128 tasks      | elapsed:    1.5s
- 25%|██▍       | 6811/27643 [00:01<00:01, 11028.65it/s] 34%|███▍      | 9506/27643 [00:01<00:01, 14896.97it/s] 44%|████▍     | 12288/27643 [00:01<00:00, 17856.17it/s] 55%|█████▌    | 15275/27643 [00:01<00:00, 21039.89it/s] 65%|██████▍   | 17858/27643 [00:01<00:00, 22353.94it/s] 76%|███████▌  | 20957/27643 [00:02<00:00, 24752.74it/s] 88%|████████▊ | 24253/27643 [00:02<00:00, 27104.66it/s] 98%|█████████▊| 27098/27643 [00:02<00:00, 20600.09it/s]100%|██████████| 27643/27643 [00:02<00:00, 11369.45it/s]
-[Parallel(n_jobs=32)]: Done 18432 tasks      | elapsed:    2.4s
-[Parallel(n_jobs=32)]: Done 26466 tasks      | elapsed:    2.6s
-[Parallel(n_jobs=32)]: Done 27643 out of 27643 | elapsed:    2.7s finished
-Saved unmasking features (27643, 8) to src/solution1/features/unmasking_train.npy
-NaN rate: 100.0%  (pairs too short to unmask)
