@@ -1,3 +1,6 @@
+# OS-generated files
+.DS_Store
+
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -11,6 +14,7 @@ wheels/
 
 # Data
 data/training_data/*
+data/*.npy
 
 # Outputs
 outputs/*
@@ -21,3 +25,11 @@ models/*
 # Don't ignore these placeholder files
 !outputs/.outputs_go_here
 !models/.saved_models_go_here
+
+# Solution 1
+src/solution1/features/*
+src/solution1/models/*
+src/solution1/HPC_logs/*
+src/solution1/results/*
+!src/solution1/results/*.md
+!src/solution1/results/*.py
