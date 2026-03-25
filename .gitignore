@@ -26,6 +26,9 @@ models/*
 !outputs/.outputs_go_here
 !models/.saved_models_go_here
 
+# Secrets
+.env
+
 # Solution 1
 src/solution1/features/*
 src/solution1/models/*
