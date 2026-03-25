@@ -17,19 +17,28 @@ This directory contains the code to train and run inference for the "Big Model" 
 ### 1. Training on the Cluster (CSF3)
 
 To train the model using the cluster's GPUs, navigate to this directory in your terminal:
+
 ```bash
 cd path/to/NLU_CW/src/solution2/big_model
 ```
 Then submit the batch job:
+
 ```bash
 sbatch submit.slurm
 ```
 
 **What happens during training:**
+
 1. The Slurm script copies the entire repository to the cluster's fast local NVMe storage (`$TMPDIR/repo`).
 2. It trains the model using the parameters specified in `config.py`.
 3. It saves the best model checkpoint based on the validation F1 score.
 4. Once finished, it copies the saved models and logs back into the main repository at `models/solution2/big_model/`.
+
+**Performance Results:**
+
+The best model achieved an F1 score of 0.8180 on the validation set, trained with a learning rate of 5e-6 for approximately 7 epochs.
+
+At step 7000: Loss 0.0695 | F1 0.8180 | Acc 0.7981 | Prec 0.7570 | Rec 0.8897 | AUC 0.8930
 
 *(If you want to train locally or interactively, just run `python -m src.solution2.big_model.train` from the project root).*
 
@@ -38,18 +47,21 @@ sbatch submit.slurm
 To generate predictions using a trained model, run the `predict.py` script. Run this from the project root (`NLU_CW`):
 
 **Predict on the default Dev Set (defined in config.py):**
+
 ```bash
 python -m src.solution2.big_model.predict
 ```
 *Outputs to: `outputs/solution2/big_model/big_probs_val.csv`*
 
 **Predict on a custom Test Set:**
+
 ```bash
 python -m src.solution2.big_model.predict \
     --input data/training_data/AV/test.csv \
     --checkpoint models/solution2/big_model/best_model.pt \
     --split test
 ```
+
 *Outputs to: `outputs/solution2/big_model/big_probs_test.csv`*
 
 ---
@@ -59,17 +71,23 @@ python -m src.solution2.big_model.predict \
 The model respects a strict folder hierarchy to keep the repository clean.
 
 ### Inputs (Data)
+
 The model expects the training and evaluation data to be located in:
+
 * `data/training_data/AV/train.csv`
 * `data/training_data/AV/dev.csv`
 *(These paths are configured in `config.py`).*
 
 ### Model Checkpoints
+
 During training, the highest-performing checkpoint (based on the `dev set` F1 score) is saved here:
+
 * `models/solution2/big_model/best_model.pt`
 
 ### Inference Outputs
+
 When you run `predict.py`, the predicted probabilities are saved here:
+
 * `outputs/solution2/big_model/big_probs_val.csv` (or whatever `--split` name you provided).
 
 These CSV probability files are designed to be explicitly loaded and used by the `ensemble` module later on!
