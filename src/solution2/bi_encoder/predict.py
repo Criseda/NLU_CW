@@ -25,6 +25,7 @@ from transformers import AutoTokenizer
 
 from . import config
 from .model import load_local_model
+from ..shared.utils import get_device
 
 
 # ── Dataset (inference — no labels required) ───────────────────────────────────
@@ -79,7 +80,7 @@ def predict_probs(
         pair_id | prob | pred
     Also writes the result to outputs/solution2/small_model/small_probs_{split}.csv.
     """
-    device = torch.device(config.DEVICE)
+    device = get_device()
     print(f"[predict] Device: {device}")
 
     tokenizer = AutoTokenizer.from_pretrained(config.MODEL_NAME)

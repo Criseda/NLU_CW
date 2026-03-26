@@ -2,75 +2,68 @@ import argparse
 import os
 import pandas as pd
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Merge predictions from multiple models via weighted soft-voting.")
+    # Core Models
     parser.add_argument("--small-csv", default="outputs/solution2/small_model/small_probs_dev.csv", help="Predictions from the MiniLM model")
-    parser.add_argument("--deberta-original-csv", default="outputs/solution2/big_model/big_probs_dev.csv", help="Predictions from original DeBERTa")
-    parser.add_argument("--deberta-7931-csv", default="outputs/solution2/big_model/big_probs_7931.csv", help="Predictions from DeBERTa checkpoint 7931")
-    parser.add_argument("--deberta-803-csv", default="outputs/solution2/big_model/big_probs_803.csv", help="Predictions from DeBERTa checkpoint 803")
-    parser.add_argument("--deberta-8180-csv", default="outputs/solution2/big_model/big_probs_8180.csv", help="Predictions from our best DeBERTa checkpoint 8180")
+    parser.add_argument("--deberta-8180-csv", default="outputs/solution2/big_model/big_probs_8180.csv", help="Best DeBERTa checkpoint 8180")
+    parser.add_argument("--deberta-803-csv", default="outputs/solution2/big_model/big_probs_803.csv", help="DeBERTa checkpoint 803")
+    
+    # New Vanilla Models
+    parser.add_argument("--roberta-csv", default="outputs/roberta_probs_dev.csv", help="RoBERTa vanilla probabilities")
+    parser.add_argument("--xlnet-csv", default="outputs/xlnetvanilla_probs_dev.csv", help="XLNet vanilla probabilities")
+    parser.add_argument("--electra-csv", default="outputs/electra_probs_dev.csv", help="ELECTRA vanilla probabilities")
+    
     parser.add_argument("--split", default="dev", help="Dataset split (e.g., dev, test)")
     args = parser.parse_args()
 
-    # Load and prep base small model predictions
-    print(f"[ensemble] Loading {args.small_csv}...")
-    df_minilm = pd.read_csv(args.small_csv)[["pair_id", "prob"]]
-    df_minilm.rename(columns={"prob": "prob_minilm"}, inplace=True)
+    # 1. Load Core Models
+    print(f"[ensemble] Loading Core Models...")
+    df_8180 = pd.read_csv(args.deberta_8180_csv)[["pair_id", "prob"]].rename(columns={"prob": "p_8180"})
+    df_803 = pd.read_csv(args.deberta_803_csv)[["prob"]].rename(columns={"prob": "p_803"})
+    df_small = pd.read_csv(args.small_csv)[["prob"]].rename(columns={"prob": "p_small"})
 
-    # Load and prep original DeBERTa predictions
-    print(f"[ensemble] Loading {args.deberta_original_csv}...")
-    df_deberta_original = pd.read_csv(args.deberta_original_csv)[["pair_id", "prob"]]
-    df_deberta_original.rename(columns={"prob": "prob_deberta_original"}, inplace=True)
+    # 2. Load New Vanilla Models (assuming row alignment as they lack pair_id)
+    print(f"[ensemble] Loading New Vanilla Models...")
+    df_roberta = pd.read_csv(args.roberta_csv)["probability"].to_frame("p_roberta")
+    df_xlnet = pd.read_csv(args.xlnet_csv)["probability"].to_frame("p_xlnet")
+    df_electra = pd.read_csv(args.electra_csv)["probability"].to_frame("p_electra")
 
-    # Load and prep DeBERTa 7931 predictions
-    print(f"[ensemble] Loading {args.deberta_7931_csv}... (Model 7931)")
-    df_deberta_7931 = pd.read_csv(args.deberta_7931_csv)[["pair_id", "prob"]]
-    df_deberta_7931.rename(columns={"prob": "prob_deberta_7931"}, inplace=True)
+    # 3. Concatenate all predictions
+    # We use df_8180 as the anchor because it contains the pair_ids
+    df = pd.concat([df_8180, df_803, df_small, df_roberta, df_xlnet, df_electra], axis=1)
 
-    # Load and prep DeBERTa 803 predictions
-    print(f"[ensemble] Loading {args.deberta_803_csv}... (Model 803)")
-    df_deberta_803 = pd.read_csv(args.deberta_803_csv)[["pair_id", "prob"]]
-    df_deberta_803.rename(columns={"prob": "prob_deberta_803"}, inplace=True)
+    if df.isnull().values.any():
+        print("[WARNING] Missing values detected in merged ensemble. Check row alignments.")
 
-    # Load and prep DeBERTa 8180 predictions (the highest performing single model)
-    print(f"[ensemble] Loading {args.deberta_8180_csv}... (Model 8180)")
-    df_deberta_8180 = pd.read_csv(args.deberta_8180_csv)[["pair_id", "prob"]]
-    df_deberta_8180.rename(columns={"prob": "prob_deberta_8180"}, inplace=True)
-
-    # Sequentially merge all dataframes on 'pair_id' to align predictions
-    df = df_minilm.merge(df_deberta_original, on="pair_id")
-    df = df.merge(df_deberta_7931, on="pair_id")
-    df = df.merge(df_deberta_803, on="pair_id")
-    df = df.merge(df_deberta_8180, on="pair_id")
-
-    if len(df) == 0:
-        raise ValueError("Merged dataframe is empty. Ensure pair_ids match across all CSVs.")
-
-    # Weighted Soft Voting:
-    # We drop the weaker models (7931 and Original) by setting their weight to 0.00 to avoid dragging down the score.
-    # The strongest model (8180) gets 50%, the runner-up (803) gets 40%, and the small MiniLM gets 10% for diversity.
+    # 4. Weighted Soft Voting (Optimized Weights for 0.8600 Macro F1)
+    # Weights: 8180(15.1%), 803(9.2%), Small(9.2%), RoBERTa(33.3%), XLNet(19.5%), ELECTRA(13.7%)
     df["prob_ensemble"] = (
-        (df["prob_deberta_8180"] * 0.50) +
-        (df["prob_deberta_803"] * 0.40) + 
-        (df["prob_deberta_7931"] * 0.00) + 
-        (df["prob_deberta_original"] * 0.00) + 
-        (df["prob_minilm"] * 0.10)
+        (df["p_8180"] * 0.1511) +
+        (df["p_803"] * 0.0917) + 
+        (df["p_small"] * 0.0918) + 
+        (df["p_roberta"] * 0.3326) + 
+        (df["p_xlnet"] * 0.1955) + 
+        (df["p_electra"] * 0.1375)
     )
     
-    # Threshold at 0.5 for final binary classification
+    # 5. Threshold at 0.5 for final binary classification
     df["pred_ensemble"] = (df["prob_ensemble"] > 0.5).astype(int)
 
     # Export merged probabilities for analysis
     out_dir = "outputs/solution2/ensemble"
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"ensemble_probs_{args.split}.csv")
+    out_path = os.path.join(out_dir, f"ensemble_probs_expanded_{args.split}.csv")
     df.to_csv(out_path, index=False)
-    print(f"[ensemble] Saved full ensemble log (5 models) to {out_path}")
+    print(f"[ensemble] Saved expanded ensemble log (6 models) to {out_path}")
 
     # Export the final predictions required by the local scorer
-    scorer_out_path = os.path.join(out_dir, f"ENSEMBLE_AV_{args.split}.csv")
+    scorer_out_path = os.path.join(out_dir, f"ENSEMBLE_EXPANDED_AV_{args.split}.csv")
     df[["pred_ensemble"]].to_csv(scorer_out_path, index=False, header=["prediction"])
     print(f"[ensemble] Saved scorer-ready format to {scorer_out_path}")
+
+if __name__ == "__main__":
+    main()
 
 if __name__ == "__main__":
     main()

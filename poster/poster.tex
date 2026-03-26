@@ -1,0 +1,130 @@
+\documentclass[a0paper,landscape]{article}
+
+% --- Geometry for A0 Poster ---
+\usepackage[margin=4cm]{geometry}
+\usepackage{multicol}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{bm}
+
+% --- Custom Font Settings ---
+\renewcommand{\familydefault}{\sfdefault} % Sans Serif for better poster readability
+
+% --- Document Properties ---
+\begin{document}
+\pagestyle{empty}
+
+% --- Header ---
+\begin{center}
+    {\fontsize{100}{120}\selectfont \bfseries Authorship Verification: Stylometric Pipelines vs. Transformer Ensembles} \\[2cm]
+    {\fontsize{50}{60}\selectfont Group Members: [Student Name 1], [Student Name 2], [Student Name 3]} \\[1cm]
+    {\fontsize{40}{50}\selectfont Department of Computer Science, [University Name]}
+\end{center}
+
+\vspace{3cm}
+\noindent\rule{\textwidth}{10pt}
+\vspace{3cm}
+
+\begin{multicols}{3}
+\raggedcolumns
+\fontsize{30}{36}\selectfont
+
+    % ── COLUMN 1: Introduction ──
+    {\huge \bfseries 1. Problem Definition}
+    \vspace{0.5cm}
+    
+    Authorship Verification (AV) is the task of determining whether two given texts $T_1$ and $T_2$ were written by the same author.
+    \begin{itemize}
+        \item \textbf{Input}: Pair of texts $(T_1, T_2)$.
+        \item \textbf{Output}: Binary label $y \in \{0, 1\}$.
+    \end{itemize}
+    The challenge lies in capturing \textit{style} (writing fingerprints) rather than \textit{content} (topics).
+
+    \vspace{2cm}
+
+    {\huge \bfseries 2. Solution 1: Classical Stylometry}
+    \vspace{0.5cm}
+
+    Our first approach focuses on interpretable linguistic markers:
+    \begin{itemize}
+        \item \textbf{Lexical Richness}: Yule's K and Simpson's D indices.
+        \item \textbf{Syntactic Patterns}: Function word frequency.
+        \item \textbf{Classifier}: XGBoost trained on stylometric feature vectors.
+    \end{itemize}
+    \textit{Mathematical precision (Yule's K)}:
+    \begin{equation}
+        K = 10^4 \cdot \frac{\sum_{i=1}^\infty i^2 V_i - N}{N^2}
+    \end{equation}
+
+    \columnbreak
+
+    % ── COLUMN 2: Deep Learning ──
+    {\huge \bfseries 3. Transformer Ensemble Solution}
+    \vspace{0.5cm}
+    
+    We implement a dual-paradigm ensemble:
+    
+    \textbf{A. DeBERTa-v3 Cross-Encoder}
+    \begin{itemize}
+        \item Fully captures token-level stylistic interactions.
+        \item Input: $[CLS] T_1 [SEP] T_2 [SEP]$.
+    \end{itemize}
+    
+    \textbf{B. Siamese MiniLM Bi-Encoder}
+    \begin{itemize}
+        \item Independent encoding of $T_1$ and $T_2$.
+        \item Faster inference, captures global structural cues.
+    \end{itemize}
+
+    \vspace{2cm}
+
+    {\huge \bfseries 4. Fusion: Weighted Soft-Voting}
+    \vspace{0.5cm}
+
+    Final prediction is a weighted sum of probabilities:
+    \begin{equation}
+        P_{ensemble} = \sum_{i=1}^n w_i \cdot \sigma(\text{logit}_i)
+    \end{equation}
+    where $w_{Big} = 0.5$, $w_{Small} = 0.1$, etc.
+
+    \columnbreak
+
+    % ── COLUMN 3: Results & Conclusion ──
+    {\huge \bfseries 5. Results \& Evaluation}
+    \vspace{0.5cm}
+
+    Metric: \textbf{Macro F1 Score}
+    \begin{center}
+    \fontsize{25}{30}\selectfont
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Model Configuration} & \textbf{Macro F1} \\ \midrule
+        Classical ML (Stylometry) & 0.7521 \\
+        Bi-Encoder (MiniLM) & 0.7734 \\
+        Cross-Encoder (DeBERTa) & 0.7951 \\
+        \textbf{Ensemble (Optimal)} & \textbf{0.8083} \\ \bottomrule
+    \end{tabular}
+    \end{center}
+    The ensemble provides a \textbf{1.32\% boost} over the best single model.
+
+    \vspace{2cm}
+
+    {\huge \bfseries 6. Critical Insights}
+    \vspace{0.5cm}
+
+    \begin{itemize}
+        \item \textbf{Robustness}: Broad diversity in the ensemble reduces variance on cross-domain pairs.
+        \item \textbf{Efficiency}: The pipeline automatically utilizes Apple Silicon (MPS).
+        \item \textbf{Improvement}: Adding MPNet-base to the ensemble could further boost performance.
+    \end{itemize}
+
+    \vspace{2cm}
+
+    {\huge \bfseries 7. Conclusion}
+    \vspace{0.5cm}
+
+    By merging deep transformer-based interaction with localized stylometric features, we achieve a state-of-the-art balance of accuracy and generalization in Authorship Verification.
+
+\end{multicols}
+
+\end{document}

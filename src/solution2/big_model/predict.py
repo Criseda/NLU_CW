@@ -25,6 +25,7 @@ from transformers import AutoTokenizer
 
 from . import config
 from .model import load_model
+from ..shared.utils import get_device
 
 
 # ── Dataset (inference — no labels required) ───────────────────────────────────
@@ -65,12 +66,7 @@ def predict_probs(
         pair_id | prob | pred
     Also writes the result to outputs/solution2/big_probs_{split}.csv.
     """
-    if torch.backends.mps.is_available():
-        device = torch.device("mps")
-    elif torch.cuda.is_available():
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
+    device = get_device()
     print(f"[predict] Device: {device}")
 
     tokenizer = AutoTokenizer.from_pretrained(config.MODEL_NAME, token=config.HF_TOKEN, use_fast=True)

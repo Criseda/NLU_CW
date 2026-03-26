@@ -25,3 +25,6 @@ The objective is to find a configuration that achieves higher F1 and AUC than th
 - **Base Model:** `sentence-transformers/all-MiniLM-L6-v2`
 - **Architecture:** Bi-Encoder with Cosine Similarity loss (CrossEntropy on pairs)
 - **Training Device:** Apple MPS (Metal Performance Shaders)
+
+## Project Integration
+This Bi-Encoder serves as a critical diversity signal in our **0.8600 F1 ensemble**, providing global structural representations that complement the token-level focus of the larger Cross-Encoders.

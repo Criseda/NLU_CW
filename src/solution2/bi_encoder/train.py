@@ -20,14 +20,7 @@ from tqdm import tqdm
 from . import config
 from .model import BiEncoder
 
-# ── Reproducibility ────────────────────────────────────────────────────────────
-
-def set_seed(seed: int) -> None:
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
+from ..shared.utils import set_seed, get_device
 
 # ── Dataset ────────────────────────────────────────────────────────────────────
 
@@ -115,7 +108,7 @@ def train() -> None:
     os.makedirs(config.MODEL_SAVE_DIR, exist_ok=True)
     os.makedirs(config.OUTPUT_DIR, exist_ok=True)
 
-    device = torch.device(config.DEVICE)
+    device = get_device()
     print(f"[train] Device: {device}")
 
     # ── Tokeniser & datasets ───────────────────────────────────────────────────
@@ -125,7 +118,7 @@ def train() -> None:
     dev_ds   = AVDataset(config.DEV_FILE,   tokenizer, config.MAX_LENGTH)
 
     # Use 0 workers on Mac MPS backend to avoid multi-processing hanging bugs
-    num_workers = 0 if config.DEVICE == "mps" else 2
+    num_workers = 0 if device.type == "mps" else 2
 
     train_loader = DataLoader(
         train_ds, batch_size=config.BATCH_SIZE, shuffle=True,  num_workers=num_workers, pin_memory=True

@@ -23,6 +23,32 @@ NLU_CW/
 └── spec/                    # Coursework specification
 ```
 
+## Ensemble Execution (Solution 2)
+
+The Authorship Verification solution uses a weighted soft-voting ensemble.
+
+### Pipeline Workflow
+1. **Inference**: Generate probability scores for each model.
+   ```bash
+   python3 -m src.solution2.big_model.predict --split val
+   python3 -m src.solution2.bi_encoder.predict --split val
+   ```
+2. **Merging**: Combine probability files into final predictions.
+   ```bash
+   python3 -m src.solution2.ensemble.predict_ensemble
+   ```
+3. **Scoring**: Evaluate against the reference data.
+   ```bash
+   python3 nlu_bundle-feature-unified-local-scorer/scorer.py \
+       --predictions outputs/solution2/ensemble_preds.csv \
+       --gold data/training_data/AV/dev.csv
+   ```
+
+### Architecture Details
+- **Cross-Encoder (Big Model)**: High-accuracy DeBERTa-v3-large model.
+- **Bi-Encoder (Small Model)**: Faster Siamese network for baseline coverage.
+- **Portability**: All scripts automatically detect and support CUDA (NVIDIA), MPS (Apple Silicon), and CPU.
+
 ## How to Run
 
 ### Setup

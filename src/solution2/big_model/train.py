@@ -23,13 +23,7 @@ from . import config
 from .model import AVCrossEncoder
 
 
-# ── Reproducibility ────────────────────────────────────────────────────────────
-
-def set_seed(seed: int) -> None:
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+from ..shared.utils import set_seed, get_device
 
 
 # ── Dataset ────────────────────────────────────────────────────────────────────
@@ -65,7 +59,7 @@ class AVDataset(Dataset):
 # ── Evaluation helper ──────────────────────────────────────────────────────────
 
 @torch.no_grad()
-def evaluate(model: AVCrossEncoder, loader: DataLoader, device: torch.device) -> dict:
+def evaluate(model, loader, device) -> dict:
     model.eval()
     all_logits, all_labels = [], []
 
@@ -102,7 +96,7 @@ def train() -> None:
     os.makedirs(config.MODEL_SAVE_DIR, exist_ok=True)
     os.makedirs(config.OUTPUT_DIR, exist_ok=True)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_device()
     print(f"[train] Device: {device}")
 
     # ── Tokeniser & datasets ───────────────────────────────────────────────────
