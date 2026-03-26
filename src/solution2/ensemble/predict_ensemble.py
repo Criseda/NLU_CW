@@ -36,15 +36,15 @@ def main() -> None:
     if df.isnull().values.any():
         print("[WARNING] Missing values detected in merged ensemble. Check row alignments.")
 
-    # 4. Weighted Soft Voting (Optimized Weights for 0.8600 Macro F1)
-    # Weights: 8180(15.1%), 803(9.2%), Small(9.2%), RoBERTa(33.3%), XLNet(19.5%), ELECTRA(13.7%)
+    # 4. Weighted Soft Voting (Exhaustive Optimization: 0.8615 Macro F1)
+    # Weights: 8180(21.6%), 803(5.8%), Small(12.6%), RoBERTa(30.5%), XLNet(13.9%), ELECTRA(15.6%)
     df["prob_ensemble"] = (
-        (df["p_8180"] * 0.1511) +
-        (df["p_803"] * 0.0917) + 
-        (df["p_small"] * 0.0918) + 
-        (df["p_roberta"] * 0.3326) + 
-        (df["p_xlnet"] * 0.1955) + 
-        (df["p_electra"] * 0.1375)
+        (df["p_8180"] * 0.2161) +
+        (df["p_803"] * 0.0583) + 
+        (df["p_small"] * 0.1262) + 
+        (df["p_roberta"] * 0.3047) + 
+        (df["p_xlnet"] * 0.1387) + 
+        (df["p_electra"] * 0.1561)
     )
     
     # 5. Threshold at 0.5 for final binary classification

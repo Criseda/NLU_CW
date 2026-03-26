@@ -27,4 +27,4 @@ The objective is to find a configuration that achieves higher F1 and AUC than th
 - **Training Device:** Apple MPS (Metal Performance Shaders)
 
 ## Project Integration
-This Bi-Encoder serves as a critical diversity signal in our **0.8600 F1 ensemble**, providing global structural representations that complement the token-level focus of the larger Cross-Encoders.
+This Bi-Encoder serves as a critical diversity signal in our **0.8615 F1 ensemble**, providing global structural representations that complement the token-level focus of the larger Cross-Encoders. 
