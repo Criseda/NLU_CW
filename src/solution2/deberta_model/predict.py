@@ -7,10 +7,10 @@ Writes probability files that the ensemble will consume later:
 
 Usage:
     # Predict on dev set (default):
-    python -m src.solution2.big_model.predict
+    python -m src.solution2.deberta_model.predict
 
     # Predict on a specific CSV:
-    python -m src.solution2.big_model.predict --input path/to/file.csv --split test
+    python -m src.solution2.deberta_model.predict --input path/to/file.csv --split test
 """
 
 import argparse
@@ -28,7 +28,6 @@ from .model import load_model
 
 
 # ── Dataset (inference — no labels required) ───────────────────────────────────
-
 
 class AVInferenceDataset(Dataset):
     def __init__(self, df: pd.DataFrame, tokenizer, max_length: int):
@@ -55,7 +54,6 @@ class AVInferenceDataset(Dataset):
 
 # ── Inference ──────────────────────────────────────────────────────────────────
 
-
 @torch.no_grad()
 def predict_probs(
     csv_path: str,
@@ -71,10 +69,10 @@ def predict_probs(
     print(f"[predict] Device: {device}")
 
     tokenizer = AutoTokenizer.from_pretrained(config.MODEL_NAME, token=config.HF_TOKEN)
-    df = pd.read_csv(csv_path)
+    df        = pd.read_csv(csv_path)
 
     dataset = AVInferenceDataset(df, tokenizer, config.MAX_LENGTH)
-    loader = DataLoader(
+    loader  = DataLoader(
         dataset,
         batch_size=config.BATCH_SIZE * 2,
         shuffle=False,
@@ -82,49 +80,48 @@ def predict_probs(
         pin_memory=True,
     )
 
-    model = load_model(
-        config.MODEL_NAME, checkpoint_path=checkpoint_path, token=config.HF_TOKEN
-    ).to(device)
+    model = load_model(config.MODEL_NAME, checkpoint_path=checkpoint_path, token=config.HF_TOKEN).to(device)
     model.eval()
 
     all_ids, all_probs = [], []
 
     for batch in tqdm(loader, desc=f"Predicting ({split})"):
-        input_ids = batch["input_ids"].to(device)
+        input_ids      = batch["input_ids"].to(device)
         attention_mask = batch["attention_mask"].to(device)
         token_type_ids = batch.get("token_type_ids")
         if token_type_ids is not None:
             token_type_ids = token_type_ids.to(device)
 
         logits = model(input_ids, attention_mask, token_type_ids)
-        probs = torch.sigmoid(logits).cpu().numpy()
+        probs  = torch.sigmoid(logits).cpu().numpy()
 
         all_ids.extend(batch["pair_id"].tolist())
         all_probs.extend(probs.tolist())
 
-    results = pd.DataFrame(
-        {
-            "pair_id": all_ids,
-            "prob": np.round(all_probs, 6),
-            "pred": (np.array(all_probs) > 0.5).astype(int),
-        }
-    )
+    results = pd.DataFrame({
+        "pair_id":     all_ids,
+        "probability": np.round(all_probs, 6),
+        "prediction":  (np.array(all_probs) > 0.5).astype(int),
+    })
 
     # ── Write output ───────────────────────────────────────────────────────────
     os.makedirs(config.OUTPUT_DIR, exist_ok=True)
-    out_path = os.path.join(config.OUTPUT_DIR, f"big_probs_{split}.csv")
+    out_path = os.path.join(config.OUTPUT_DIR, f"probs_{split}.csv")
     results.to_csv(out_path, index=False)
     print(f"[predict] Saved → {out_path}")
 
     # Quick F1 sanity check if labels available
     if dataset.labels is not None:
         from sklearn.metrics import f1_score, accuracy_score
-
         labels = np.array(dataset.labels)
-        preds = results["pred"].values
+        preds  = results["prediction"].values
+        f1_binary = f1_score(labels, preds)
+        f1_macro = f1_score(labels, preds, average="macro")
+        acc = accuracy_score(labels, preds)
         print(
-            f"[predict] F1: {f1_score(labels, preds):.4f} | "
-            f"Acc: {accuracy_score(labels, preds):.4f}"
+            f"[predict] F1 (binary): {f1_binary:.4f} | "
+            f"F1 (macro): {f1_macro:.4f} | "
+            f"Acc: {acc:.4f}"
         )
 
     return results
@@ -132,21 +129,19 @@ def predict_probs(
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--input",
-        default=config.DEV_FILE,
-        help="Path to input CSV (text_1, text_2[, label])",
+        "--input",  default=config.DEV_FILE,
+        help="Path to input CSV (text_1, text_2[, label])"
     )
     parser.add_argument(
-        "--checkpoint",
-        default=os.path.join(config.MODEL_SAVE_DIR, "best_model.pt"),
-        help="Path to saved model weights (.pt)",
+        "--checkpoint", default=os.path.join(config.MODEL_SAVE_DIR, "best_model.pt"),
+        help="Path to saved model weights (.pt)"
     )
     parser.add_argument(
-        "--split", default="val", help="Label for output file: big_probs_{split}.csv"
+        "--split", default="val",
+        help="Label for output file: big_probs_{split}.csv"
     )
     args = parser.parse_args()
 

@@ -27,14 +27,14 @@ class AVCrossEncoder(nn.Module):
         config.hidden_dropout_prob = dropout
 
         self.encoder = AutoModel.from_pretrained(model_name, config=config, token=token)
-        hidden_size = config.hidden_size  # 1024 for deberta-v3-large
+        hidden_size = config.hidden_size              # 1024 for deberta-v3-large
 
         self.classifier = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(hidden_size, hidden_size // 2),
             nn.GELU(),
             nn.Dropout(dropout),
-            nn.Linear(hidden_size // 2, 1),  # single logit
+            nn.Linear(hidden_size // 2, 1),          # single logit
         )
 
     def forward(
@@ -58,14 +58,14 @@ class AVCrossEncoder(nn.Module):
             token_type_ids=token_type_ids,
         )
         # Use the [CLS] token representation
-        cls_repr = outputs.last_hidden_state[:, 0, :]  # (batch, hidden_size)
+        cls_repr = outputs.last_hidden_state[:, 0, :]   # (batch, hidden_size)
+        # Ensure dtype consistency: cast to float32 to match classifier weights
+        cls_repr = cls_repr.float()
         logits = self.classifier(cls_repr).squeeze(-1)  # (batch,)
         return logits
 
 
-def load_model(
-    model_name: str, checkpoint_path: str | None = None, token: str | None = None
-) -> AVCrossEncoder:
+def load_model(model_name: str, checkpoint_path: str | None = None, token: str | None = None) -> AVCrossEncoder:
     """
     Convenience loader.
       - If checkpoint_path is None  → returns freshly initialised model.

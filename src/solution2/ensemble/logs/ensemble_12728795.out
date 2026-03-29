@@ -1,0 +1,128 @@
+Job running on node: node876
+Job is using 1 GPU(s) with ID(s) 0 and 2 CPU core(s)
+Copying project to NVMe storage (/tmp/slurm.12728795)...
+Calibrating base model predictions...
+[calibrate] Calibrating base model predictions...
+[calibrate] Training set size: 27643
+[calibrate] Calibration subset: 5528 samples
+[calibrate] Training subset: 22115 samples
+
+[calibrate] roberta:
+  Calibration set size: 5528
+  Original ECE: 0.0017
+  Calibrated ECE: 0.0000
+  Improvement: 100.0%
+
+[calibrate] xlnet:
+  Calibration set size: 5528
+  Original ECE: 0.0027
+  Calibrated ECE: 0.0000
+  Improvement: 100.0%
+
+[calibrate] electra:
+  Calibration set size: 5528
+  Original ECE: 0.0781
+  Calibrated ECE: 0.0000
+  Improvement: 100.0%
+
+[calibrate] deberta:
+  Calibration set size: 5528
+  Original ECE: 0.1454
+  Calibrated ECE: 0.0000
+  Improvement: 100.0%
+
+[calibrate] All calibrators saved → /tmp/slurm.12728795/repo/models/solution2/ensemble/calibrators/calibrators.pkl
+Training neural network ensemble...
+[ensemble] Device: cuda
+[ensemble] Loading 4 model predictions...
+  - Loading roberta train predictions...
+  - Loading xlnet train predictions...
+  - Loading electra train predictions...
+  - Loading deberta train predictions...
+  - Loading roberta dev predictions...
+  - Loading xlnet dev predictions...
+  - Loading electra dev predictions...
+  - Loading deberta dev predictions...
+[ensemble] Checking for base model calibrators...
+[ensemble] Loading base model calibrators...
+[ensemble] Applied calibration to 4 models
+[ensemble] Train set: 27643 samples, 4 models
+[ensemble] Dev set: 5993 samples
+[ensemble] Creating feature matrices...
+[ensemble] Features: ['roberta_prob', 'roberta_pred', 'xlnet_prob', 'xlnet_pred', 'electra_prob', 'electra_pred', 'deberta_prob', 'deberta_pred', 'max_prob', 'min_prob', 'mean_prob', 'std_prob', 'prob_range', 'prob_variance', 'vote_pred', 'vote_certainty', 'perfect_agreement', 'predictions_entropy', 'consensus_confidence']
+[ensemble] Feature count: 19
+[ensemble] Initializing neural network meta-learner...
+[ensemble] Training...
+[ensemble] Early stopping at epoch 16
+
+[ensemble] Loading best model and evaluating...
+
+[ensemble] Optimizing decision threshold...
+
+[ensemble] Fitting isotonic regression for calibration...
+
+[ensemble] Analyzing prediction calibration...
+  Original ECE: 0.1375
+  Calibrated ECE: 0.0000
+  Max Calibration Error (MCE): 0.0000
+  ✓ Good calibration after isotonic regression
+[ensemble] Calibration: ECE=0.0000
+[ensemble] Final Results (Dev Set):
+  F1 (macro): 0.8644
+  Accuracy: 0.8647
+  AUC-ROC: 0.9197
+  Threshold: 0.42
+
+[ensemble] Feature Importance (how the network weights each feature):
+----------------------------------------------------------------------
+  electra_pred         | ███                                      |   6.1%
+  perfect_agreement    | ███                                      |   6.1%
+  electra_prob         | ██                                       |   5.9%
+  vote_pred            | ██                                       |   5.9%
+  roberta_pred         | ██                                       |   5.8%
+  xlnet_pred           | ██                                       |   5.8%
+  mean_prob            | ██                                       |   5.7%
+  prob_range           | ██                                       |   5.7%
+  min_prob             | ██                                       |   5.6%
+  roberta_prob         | ██                                       |   5.5%
+  deberta_pred         | ██                                       |   5.5%
+  xlnet_prob           | ██                                       |   5.3%
+  vote_certainty       | ██                                       |   5.3%
+  predictions_entropy  | ██                                       |   5.0%
+  deberta_prob         | ██                                       |   5.0%
+  max_prob             | ██                                       |   4.9%
+  consensus_confidence | ██                                       |   4.8%
+  std_prob             | ██                                       |   4.3%
+  prob_variance        |                                          |   1.9%
+----------------------------------------------------------------------
+
+[ensemble] Model Contribution Breakdown:
+----------------------------------------------------------------------
+  roberta              | █████                                    |  11.3%
+  xlnet                | █████                                    |  11.2%
+  electra              | ██████                                   |  12.0%
+  deberta              | █████                                    |  10.5%
+----------------------------------------------------------------------
+[ensemble] Feature importance saved → /tmp/slurm.12728795/repo/models/solution2/ensemble/feature_importance.csv
+[ensemble] Feature names saved → /tmp/slurm.12728795/repo/models/solution2/ensemble/feature_names.pkl
+[ensemble] Optimal threshold saved → /tmp/slurm.12728795/repo/models/solution2/ensemble/threshold.pkl
+[ensemble] Isotonic regressor saved → /tmp/slurm.12728795/repo/models/solution2/ensemble/iso_regressor.pkl
+[ensemble] Dev predictions saved → /tmp/slurm.12728795/repo/outputs/solution2/ensemble/probs_dev.csv
+Generating ensemble predictions on dev set...
+[ensemble-predict] Loading model predictions for dev...
+  - Loading roberta dev predictions...
+  - Loading xlnet dev predictions...
+  - Loading electra dev predictions...
+  - Loading deberta dev predictions...
+[ensemble-predict] Loading base model calibrators...
+[ensemble-predict] Applied calibration to 4 models
+[ensemble-predict] Creating feature matrix...
+[ensemble-predict] Using optimal threshold: 0.42
+[ensemble-predict] Loaded isotonic regressor for calibration
+[ensemble-predict] Loading model from /tmp/slurm.12728795/repo/models/solution2/ensemble/meta_learner.pt...
+[ensemble-predict] Generating ensemble predictions...
+[ensemble-predict] Applying isotonic regression calibration...
+[ensemble-predict] Saved → /tmp/slurm.12728795/repo/outputs/solution2/ensemble/probs_dev.csv
+✓ Ensemble training and prediction complete
+Copying ensemble model and predictions back to original repository...
+✓ Ensemble model and predictions copied to /net/scratch/p12289lp/nlu_cw/

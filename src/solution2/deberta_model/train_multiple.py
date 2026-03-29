@@ -2,8 +2,8 @@ import os
 import gc
 import time
 import torch
-from src.solution2.big_model import config
-from src.solution2.big_model.train import train
+from src.solution2.deberta_model import config
+from src.solution2.deberta_model.train import train
 
 def main():
     """
@@ -22,11 +22,16 @@ def main():
     # 2. Focused Learning Rate Sweep
     # Narrow search for the optimal learning rate using the clean, unified baseline settings.
     configs_to_test = [
-        {"lr": 3e-6, "warmup": 0.10, "batch": 8, "grad_accum": 2, "weight_decay": 0.01, "seed": 42, "name": "baseline_lr_3e6"},
-        {"lr": 5e-6, "warmup": 0.10, "batch": 8, "grad_accum": 2, "weight_decay": 0.01, "seed": 42, "name": "baseline_lr_5e6"},
-        {"lr": 7e-6, "warmup": 0.10, "batch": 8, "grad_accum": 2, "weight_decay": 0.01, "seed": 42, "name": "baseline_lr_7e6"},
-        {"lr": 1e-5, "warmup": 0.10, "batch": 8, "grad_accum": 2, "weight_decay": 0.01, "seed": 42, "name": "baseline_lr_1e5"},
+        {"lr": 5e-6, "epochs": 3, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "seed": 2005, "name": "lr5e6_epochs3_seed2005"},
+        {"lr": 5e-6, "epochs": 3, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "seed": 123, "name": "lr5e6_epochs3_seed123"},
+        {"lr": 5e-6, "epochs": 3, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "seed": 456, "name": "lr5e6_epochs3_seed456"},
+        {"lr": 5e-6, "epochs": 3, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "seed": 789, "name": "lr5e6_epochs3_seed789"},
+        {"lr": 5e-6, "epochs": 3, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "seed": 1011, "name": "lr5e6_epochs3_seed1011"},
+        {"lr": 5e-6, "epochs": 3, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "seed": 1213, "name": "lr5e6_epochs3_seed1213"},
+        {"lr": 5e-6, "epochs": 3, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "seed": 1415, "name": "lr5e6_epochs3_seed1415"},
+        {"lr": 5e-6, "epochs": 3, "warmup": 0.10, "batch": 16, "grad_accum": 1, "weight_decay": 0.01, "seed": 1617, "name": "lr5e6_epochs3_seed1617"}
     ]
+
 
     base_save_dir = config.MODEL_SAVE_DIR
     base_out_dir  = config.OUTPUT_DIR
@@ -49,6 +54,7 @@ def main():
 
         # 1. Dynamically override the global config module
         config.LEARNING_RATE  = run["lr"]
+        config.EPOCHS         = run["epochs"]
         config.WARMUP_RATIO   = run["warmup"]
         config.BATCH_SIZE     = run["batch"]
         config.GRAD_ACCUM     = run["grad_accum"]
