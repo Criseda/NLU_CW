@@ -3,7 +3,7 @@
 ### Partition and GPU configuration
 #SBATCH -p gpuL                   # gpuA selects A100 (80GB) partition, or gpuL for L40s partition
 #SBATCH -G 2                      # Request 2 GPUs
-#SBATCH -t 12:00:00               # Wallclock limit: 3 hours
+#SBATCH -t 12:00:00               # Wallclock limit: 12 hours
 #SBATCH -n 1                      # 1 task
 #SBATCH -c 6                      # 4 CPU cores (12 per GPU maximum)
 #SBATCH -J deberta_model_nlu       # Job name
