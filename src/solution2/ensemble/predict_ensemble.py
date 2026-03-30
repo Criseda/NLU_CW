@@ -131,7 +131,7 @@ def predict_probs(split: str = "val") -> pd.DataFrame:
         hidden_size=config.HIDDEN_SIZE,
         dropout=config.DROPOUT,
     ).to(device)
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
     
     # Predict
