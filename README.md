@@ -9,19 +9,20 @@ This repository contains two distinct solutions for the Authorship Verification 
 ```md
 NLU_CW/
 ├── data/                    # All data (trial, training, test)
-├── notebooks/
-│   ├── demo_solution1.ipynb # Inference demo — Solution 1
-│   └── demo_solution2.ipynb # Inference demo — Solution 2
-├── src/
-│   ├── solution1/           # Stylometric Extraction + Stacking Ensemble
-│   ├── solution2/           # Transformer Cross-Encoders + Neural Meta-Learner
-│   └── evaluate.py          # Unified evaluation script (Metrics calculation)
-├── models/                  # Saved model weights
+├── eda/                     # EDA on AV, ED and NLI
 ├── model_cards/             # Model cards detailing architecture and performance
 │   ├── solution1_card.md
 │   └── solution2_card.md
+├── models/                  # Saved model weights
+├── notebooks/
+│   ├── demo_solution1.ipynb # Inference demo — Solution 1
+│   └── demo_solution2.ipynb # Inference demo — Solution 2
 ├── outputs/                 # Target directory for generated Prediction CSVs
-└── spec/                    # Coursework specification
+├── src/
+│   ├── evaluation/          # Unified evaluation logic (metrics calculation)
+│   ├── solution1/           # Stylometric Extraction + Stacking Ensemble
+│   ├── solution2/           # Transformer Cross-Encoders + Neural Meta-Learner
+│   └── evaluate.py          # Unified evaluation script (Metrics calculation)
 ```
 
 ## How to Run
