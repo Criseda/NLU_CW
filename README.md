@@ -6,7 +6,7 @@ This repository contains two distinct solutions for the Authorship Verification 
 
 ## Project Structure
 
-```
+```md
 NLU_CW/
 ├── data/                    # All data (trial, training, test)
 ├── notebooks/
@@ -87,7 +87,7 @@ Please refer to the `model_cards/` directory to read detailed specifications for
 Weights are saved externally due to GitHub file size limitations.
 
 | Solution | Component | Cloud Link |
-|----------|-----------|------------|
+| --- | --- | --- |
 | Solution 1 | Corpus Vectors | [Google Drive](https://drive.google.com/file/d/1JFsQpv3RCfa0HEcwK4zz4gAVrWxDWUrg/view?usp=sharing) |
 | Solution 1 | Model A2 (LightGBM) | [Google Drive](https://drive.google.com/file/d/1I9Cy6XddLRY8TUcs0VMh895WmySVKj45/view?usp=sharing) |
 | Solution 2 | XLNet Base | [Google Drive](https://drive.google.com/file/d/1HWnOv36f-VOe92tKl2saQ1xs4k7hwbty/view?usp=sharing) |
