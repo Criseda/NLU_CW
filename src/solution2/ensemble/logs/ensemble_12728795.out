@@ -53,7 +53,7 @@ Training neural network ensemble...
 [ensemble] Feature count: 19
 [ensemble] Initializing neural network meta-learner...
 [ensemble] Training...
-[ensemble] Early stopping at epoch 16
+[ensemble] Early stopping at epoch 49
 
 [ensemble] Loading best model and evaluating...
 
@@ -62,52 +62,52 @@ Training neural network ensemble...
 [ensemble] Fitting isotonic regression for calibration...
 
 [ensemble] Analyzing prediction calibration...
-  Original ECE: 0.1375
+  Original ECE: 0.1578
   Calibrated ECE: 0.0000
-  Max Calibration Error (MCE): 0.0000
+  Max Calibration Error (MCE): 0.0001
   ✓ Good calibration after isotonic regression
 [ensemble] Calibration: ECE=0.0000
 [ensemble] Final Results (Dev Set):
   F1 (macro): 0.8644
-  Accuracy: 0.8647
-  AUC-ROC: 0.9197
-  Threshold: 0.42
+  Accuracy: 0.8645
+  AUC-ROC: 0.9234
+  Threshold: 0.51
 
 [ensemble] Feature Importance (how the network weights each feature):
 ----------------------------------------------------------------------
-  electra_pred         | ███                                      |   6.1%
-  perfect_agreement    | ███                                      |   6.1%
-  electra_prob         | ██                                       |   5.9%
-  vote_pred            | ██                                       |   5.9%
-  roberta_pred         | ██                                       |   5.8%
-  xlnet_pred           | ██                                       |   5.8%
-  mean_prob            | ██                                       |   5.7%
-  prob_range           | ██                                       |   5.7%
-  min_prob             | ██                                       |   5.6%
-  roberta_prob         | ██                                       |   5.5%
-  deberta_pred         | ██                                       |   5.5%
-  xlnet_prob           | ██                                       |   5.3%
-  vote_certainty       | ██                                       |   5.3%
-  predictions_entropy  | ██                                       |   5.0%
-  deberta_prob         | ██                                       |   5.0%
-  max_prob             | ██                                       |   4.9%
-  consensus_confidence | ██                                       |   4.8%
-  std_prob             | ██                                       |   4.3%
-  prob_variance        |                                          |   1.9%
+  electra_prob         | ████                                     |   9.4%
+  roberta_prob         | ████                                     |   9.0%
+  roberta_pred         | ████                                     |   8.2%
+  vote_pred            | ████                                     |   8.0%
+  xlnet_prob           | ███                                      |   7.4%
+  electra_pred         | ███                                      |   6.9%
+  mean_prob            | ███                                      |   6.2%
+  xlnet_pred           | ██                                       |   5.9%
+  deberta_prob         | ██                                       |   5.6%
+  vote_certainty       | ██                                       |   5.0%
+  perfect_agreement    | ██                                       |   4.5%
+  prob_range           | █                                        |   3.5%
+  min_prob             | █                                        |   3.5%
+  deberta_pred         | █                                        |   3.4%
+  max_prob             | █                                        |   3.4%
+  consensus_confidence | █                                        |   3.2%
+  predictions_entropy  | █                                        |   2.6%
+  std_prob             | █                                        |   2.5%
+  prob_variance        |                                          |   1.8%
 ----------------------------------------------------------------------
 
 [ensemble] Model Contribution Breakdown:
 ----------------------------------------------------------------------
-  roberta              | █████                                    |  11.3%
-  xlnet                | █████                                    |  11.2%
-  electra              | ██████                                   |  12.0%
-  deberta              | █████                                    |  10.5%
+  roberta              | ████████                                 |  17.2%
+  xlnet                | ██████                                   |  13.3%
+  electra              | ████████                                 |  16.3%
+  deberta              | ████                                     |   9.0%
 ----------------------------------------------------------------------
-[ensemble] Feature importance saved → /tmp/slurm.12728795/repo/models/solution2/ensemble/feature_importance.csv
-[ensemble] Feature names saved → /tmp/slurm.12728795/repo/models/solution2/ensemble/feature_names.pkl
-[ensemble] Optimal threshold saved → /tmp/slurm.12728795/repo/models/solution2/ensemble/threshold.pkl
-[ensemble] Isotonic regressor saved → /tmp/slurm.12728795/repo/models/solution2/ensemble/iso_regressor.pkl
-[ensemble] Dev predictions saved → /tmp/slurm.12728795/repo/outputs/solution2/ensemble/probs_dev.csv
+[ensemble] Feature importance saved → /tmp/slurm.12927582/repo/models/solution2/ensemble/feature_importance.csv
+[ensemble] Feature names saved → /tmp/slurm.12927582/repo/models/solution2/ensemble/feature_names.pkl
+[ensemble] Optimal threshold saved → /tmp/slurm.12927582/repo/models/solution2/ensemble/threshold.pkl
+[ensemble] Isotonic regressor saved → /tmp/slurm.12927582/repo/models/solution2/ensemble/iso_regressor.pkl
+[ensemble] Dev predictions saved → /tmp/slurm.12927582/repo/outputs/solution2/ensemble/probs_dev.csv
 Generating ensemble predictions on dev set...
 [ensemble-predict] Loading model predictions for dev...
   - Loading roberta dev predictions...
