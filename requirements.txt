@@ -21,6 +21,9 @@ textstat
 lightgbm
 spacy
 
+# Downloads
+gdown
+
 # Notebooks
 jupyter
 ipykernel
