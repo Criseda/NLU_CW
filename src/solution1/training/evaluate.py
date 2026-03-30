@@ -64,7 +64,7 @@ HPC_SLICE         = slice(84, 97)  # 13 HPC-derived features
 
 # ── Metric computation ──────────────────────────────────────────────────────
 
-from src.evaluate import compute_metrics as base_compute_metrics
+from src.evaluation.evaluate import compute_metrics as base_compute_metrics
 
 def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> dict:
     """Compute all scalar evaluation metrics for a set of predictions."""

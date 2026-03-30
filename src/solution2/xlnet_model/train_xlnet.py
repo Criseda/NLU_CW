@@ -140,7 +140,7 @@ def evaluate(
         all_labels.extend(labels.cpu().numpy())
     
     # Compute metrics
-    from src.evaluate import compute_metrics
+    from src.evaluation.evaluate import compute_metrics
     all_logits = np.array(all_logits)
     all_labels = np.array(all_labels)
     probs = torch.sigmoid(torch.tensor(all_logits)).numpy()

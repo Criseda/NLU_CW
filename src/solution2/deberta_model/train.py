@@ -86,7 +86,7 @@ def evaluate(model: AVCrossEncoder, loader: DataLoader, device: torch.device) ->
 
     probs = torch.sigmoid(torch.tensor(all_logits)).numpy()
 
-    from src.evaluate import compute_metrics
+    from src.evaluation.evaluate import compute_metrics
     metrics = compute_metrics(all_labels, preds, probs)
     return {
         "f1":        metrics["f1_macro"],
