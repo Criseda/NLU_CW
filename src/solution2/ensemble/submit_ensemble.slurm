@@ -18,7 +18,7 @@ module purge
 module load apps/binapps/conda/miniforge3/25.9.1
 module load libs/cuda/12.4.1       # CUDA for PyTorch
 
-# 2. Activate Conda environment
+# 2. Activate Conda environment (create and install dependencies if not already done, this one is just an example)
 conda activate nlu_big_model
 
 # 3. Optimize multiprocessing
