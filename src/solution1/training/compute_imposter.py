@@ -67,6 +67,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input",   required=True, help="Path to raw CSV")
     parser.add_argument("--output",  required=True, help="Path to output .npy")
+    parser.add_argument("--vectorizer", help="Path to pre-fitted .joblib vectorizer (e.g. from training)")
+    parser.add_argument("--corpus", help="Path to pre-computed .joblib corpus vectors")
     parser.add_argument("--n_jobs",  type=int, default=1)
     parser.add_argument("--n_trials",    type=int, default=100)
     parser.add_argument("--n_impostors", type=int, default=50)
@@ -74,37 +76,72 @@ def main():
     args = parser.parse_args()
 
     df = pd.read_csv(args.input)
+
     if args.limit:
         df = df.head(args.limit)
 
-    # Build corpus: all individual texts (text_1 and text_2 from training set)
-    print("Building corpus TF-IDF matrix ...")
     all_texts = list(df["text_1"]) + list(df["text_2"])
-    tfidf = TfidfVectorizer(analyzer='char', ngram_range=(3, 3), max_features=5000)
-    corpus_vectors = tfidf.fit_transform(all_texts)
-    # Row i corresponds to all_texts[i]:
-    #   rows 0..N-1 → text_1 values
-    #   rows N..2N-1 → text_2 values
 
-    # Save vectorizer for inference-time use
+    # --- FEATURE EXTRACTION MODES ---
+    # 1. LEAKAGE-FREE MODE: Use pre-fitted vectorizer and corpus from training.
+    #    This ensures the test set is transformed exactly like the training set.
+    # 2. LEGACY MODE: Fit vectorizer on the input file itself. 
+    #    WARNING: This causes data leakage if run on test data.
+    
+    if args.vectorizer and args.corpus:
+        print(f"Loading pre-fitted vectorizer from {args.vectorizer} ...")
+        tfidf = joblib.load(args.vectorizer)
+        print(f"Loading pre-computed corpus from {args.corpus} ...")
+        base_corpus_vectors = joblib.load(args.corpus)
+        
+        print("Transforming input texts with training vectorizer (Leakage-Free) ...")
+        test_vectors = tfidf.transform(all_texts)
+        
+        # We append test vectors to the end of the base corpus so they can be
+        # indexed correctly for the comparison within their own pairs.
+        import scipy.sparse as sp
+        corpus_vectors = sp.vstack([base_corpus_vectors, test_vectors])
+        
+        # Offset indexing: 
+        #   Pair i (text_1) is now at index base_corpus_vectors.shape[0] + i
+        #   Pair i (text_2) is now at index base_corpus_vectors.shape[0] + len(df) + i
+        offset = base_corpus_vectors.shape[0]
+        n_pairs = len(df)
+        
+        print(f"Computing GI features for {n_pairs} pairs using training distribution ...")
+        results = Parallel(n_jobs=args.n_jobs, verbose=5)(
+            delayed(general_impostor_features)(
+                offset + i, offset + n_pairs + i, corpus_vectors,
+                n_trials=args.n_trials,
+                n_impostors=args.n_impostors,
+                seed=42 + i,
+            )
+            for i in tqdm(range(n_pairs))
+        )
+    else:
+        # Legacy mode (with leakage): fitting on the input file
+        print("Building corpus TF-IDF matrix (WARNING: Fitting on input file, potential leakage) ...")
+        tfidf = TfidfVectorizer(analyzer='char', ngram_range=(3, 3), max_features=5000)
+        corpus_vectors = tfidf.fit_transform(all_texts)
+        
+        # Save vectorizer/corpus for future inference
+        output_path = Path(args.output)
+        joblib.dump(tfidf, output_path.parent / "gi_tfidf_vectorizer.joblib")
+        joblib.dump(corpus_vectors, output_path.parent / "gi_corpus_vectors.joblib")
+        
+        n_pairs = len(df)
+        results = Parallel(n_jobs=args.n_jobs, verbose=5)(
+            delayed(general_impostor_features)(
+                i, n_pairs + i, corpus_vectors,
+                n_trials=args.n_trials,
+                n_impostors=args.n_impostors,
+                seed=42 + i,
+            )
+            for i in tqdm(range(n_pairs))
+        )
+
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(tfidf, output_path.parent / "gi_tfidf_vectorizer.joblib")
-    joblib.dump(corpus_vectors, output_path.parent / "gi_corpus_vectors.joblib")
-
-    # Pair i corresponds to text_1[i] at index i, text_2[i] at index N+i
-    n = len(df)
-    print(f"Computing GI features for {n} pairs ({args.n_trials} trials each) ...")
-    results = Parallel(n_jobs=args.n_jobs, verbose=5)(
-        delayed(general_impostor_features)(
-            i, n + i, corpus_vectors,
-            n_trials=args.n_trials,
-            n_impostors=args.n_impostors,
-            seed=42 + i,
-        )
-        for i in tqdm(range(n))
-    )
-
     arr = np.array(results, dtype=np.float32)
     np.save(output_path, arr)
     print(f"Saved GI features {arr.shape} to {output_path}")
