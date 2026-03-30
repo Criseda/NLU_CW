@@ -17,6 +17,9 @@ accelerate
 
 # Evaluation
 scipy
+textstat
+lightgbm
+spacy
 
 # Notebooks
 jupyter

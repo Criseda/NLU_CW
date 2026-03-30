@@ -1,15 +1,15 @@
 """
-predict_roberta.py — Inference with RoBERTa-large cross-encoder.
+predict.py — Inference with RoBERTa-large cross-encoder.
 
 Writes probability files for model evaluation:
     outputs/solution2/roberta_model/probs_{split}.csv
 
 Usage:
     # Predict on dev set (default):
-    python -m src.solution2.roberta_model.predict_roberta
+    python -m src.solution2.roberta_model.predict
 
     # Predict on a specific CSV:
-    python -m src.solution2.roberta_model.predict_roberta --input path/to/file.csv --split test
+    python -m src.solution2.roberta_model.predict --input path/to/file.csv --split test
 """
 
 import argparse

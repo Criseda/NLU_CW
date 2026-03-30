@@ -86,12 +86,14 @@ def evaluate(model: AVCrossEncoder, loader: DataLoader, device: torch.device) ->
 
     probs = torch.sigmoid(torch.tensor(all_logits)).numpy()
 
+    from src.evaluate import compute_metrics
+    metrics = compute_metrics(all_labels, preds, probs)
     return {
-        "f1":        f1_score(all_labels, preds),
-        "accuracy":  accuracy_score(all_labels, preds),
-        "precision": precision_score(all_labels, preds, zero_division=0),
-        "recall":    recall_score(all_labels, preds, zero_division=0),
-        "roc_auc":   roc_auc_score(all_labels, probs),
+        "f1":        metrics["f1_macro"],
+        "accuracy":  metrics["accuracy"],
+        "precision": metrics["precision"],
+        "recall":    metrics["recall"],
+        "roc_auc":   metrics["roc_auc"],
     }
 
 

@@ -132,17 +132,19 @@ def evaluate(
         all_labels.extend(labels.cpu().numpy())
     
     # Compute metrics
+    from src.evaluate import compute_metrics
     all_logits = np.array(all_logits)
     all_labels = np.array(all_labels)
     probs = torch.sigmoid(torch.tensor(all_logits)).numpy()
     preds_05 = (probs > 0.5).astype(int)
     
+    comp_metrics = compute_metrics(all_labels, preds_05, probs)
     metrics = {
         "loss": total_loss / len(loader),
-        "f1": f1_score(all_labels, preds_05, average="macro"),
-        "acc": accuracy_score(all_labels, preds_05),
-        "precision": precision_score(all_labels, preds_05, average="macro", zero_division=0),
-        "recall": recall_score(all_labels, preds_05, average="macro", zero_division=0),
+        "f1": comp_metrics["f1_macro"],
+        "acc": comp_metrics["accuracy"],
+        "precision": comp_metrics["precision"],
+        "recall": comp_metrics["recall"],
     }
     
     return metrics

@@ -1,15 +1,15 @@
 """
-predict_electra.py — Inference with ELECTRA-large cross-encoder.
+predict.py — Inference with ELECTRA-large cross-encoder.
 
 Writes probability files for model evaluation:
     outputs/solution2/electra_model/probs_{split}.csv
 
 Usage:
     # Predict on dev set (default):
-    python -m src.solution2.electra_model.predict_electra
+    python -m src.solution2.electra_model.predict
 
     # Predict on a specific CSV:
-    python -m src.solution2.electra_model.predict_electra --input path/to/file.csv --split test
+    python -m src.solution2.electra_model.predict --input path/to/file.csv --split test
 """
 
 import argparse

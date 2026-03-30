@@ -64,18 +64,13 @@ HPC_SLICE         = slice(84, 97)  # 13 HPC-derived features
 
 # ── Metric computation ──────────────────────────────────────────────────────
 
+from src.evaluate import compute_metrics as base_compute_metrics
+
 def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> dict:
     """Compute all scalar evaluation metrics for a set of predictions."""
-    return {
-        "accuracy":          round(float(accuracy_score(y_true, y_pred)), 6),
-        "balanced_accuracy": round(float(balanced_accuracy_score(y_true, y_pred)), 6),
-        "f1_macro":          round(float(f1_score(y_true, y_pred, average='macro')), 6),
-        "f1_weighted":       round(float(f1_score(y_true, y_pred, average='weighted')), 6),
-        "precision":         round(float(precision_score(y_true, y_pred, zero_division=0)), 6),
-        "recall":            round(float(recall_score(y_true, y_pred, zero_division=0)), 6),
-        "roc_auc":           round(float(roc_auc_score(y_true, y_prob)), 6),
-        "brier_score":       round(float(brier_score_loss(y_true, y_prob)), 6),
-    }
+    metrics = base_compute_metrics(y_true, y_pred, y_prob)
+    # Ensure they are rounded for backward compatibility
+    return {k: round(v, 6) for k, v in metrics.items()}
 
 
 def bootstrap_ci(

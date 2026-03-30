@@ -1,15 +1,15 @@
 """
-predict_xlnet.py — Inference with XLNet-large cross-encoder.
+predict.py — Inference with XLNet-large cross-encoder.
 
 Writes probability files for model evaluation:
     outputs/solution2/xlnet_model/probs_{split}.csv
 
 Usage:
     # Predict on dev set (default):
-    python -m src.solution2.xlnet_model.predict_xlnet
+    python -m src.solution2.xlnet_model.predict
 
     # Predict on a specific CSV:
-    python -m src.solution2.xlnet_model.predict_xlnet --input path/to/file.csv --split test
+    python -m src.solution2.xlnet_model.predict --input path/to/file.csv --split test
 """
 
 import argparse

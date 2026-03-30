@@ -38,14 +38,14 @@ echo "Starting RoBERTa inference..."
 
 # Run prediction on dev set
 echo "Running inference on dev set..."
-python -m src.solution2.roberta_model.predict_roberta \
+python -m src.solution2.roberta_model.predict \
     --input data/training_data/AV/dev.csv \
     --split dev
 
 # Run prediction on train set (if needed for additional validation)
 if [ -f data/training_data/AV/train.csv ]; then
     echo "Running inference on train set..."
-    python -m src.solution2.roberta_model.predict_roberta \
+    python -m src.solution2.roberta_model.predict \
         --input data/training_data/AV/train.csv \
         --split train
 fi

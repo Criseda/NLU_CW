@@ -2,64 +2,90 @@
 
 > **Track:** C — Authorship Verification
 
+This repository contains two distinct solutions for the Authorship Verification shared task, focusing on pairwise sequence classification. 
+
 ## Project Structure
 
 ```
 NLU_CW/
 ├── data/                    # All data (trial, training, test)
-├── eda/                     # Exploratory Data Analysis on each track
 ├── notebooks/
-│   ├── demo_solutionA.ipynb # Inference demo — Solution A (Category C)
-│   └── demo_solutionC.ipynb # Inference demo — Solution C (Category C)
+│   ├── demo_solution1.ipynb # Inference demo — Solution 1
+│   └── demo_solution2.ipynb # Inference demo — Solution 2
 ├── src/
-│   ├── solution1/           # Training code for Solution A
-│   ├── solution2/           # Training code for Solution C
-│   ├── evaluation/          # Evaluation scripts (F1, accuracy, etc.)
-│   └── utils/               # Shared utilities (data loading, preprocessing)
-├── models/                  # Saved model weights (large files on OneDrive)
-├── model_cards/             # Model cards (markdown)
-├── outputs/                 # Prediction CSVs
-├── poster/                  # Poster PDF
+│   ├── solution1/           # Stylometric Extraction + Stacking Ensemble
+│   ├── solution2/           # Transformer Cross-Encoders + Neural Meta-Learner
+│   └── evaluate.py          # Unified evaluation script (Metrics calculation)
+├── models/                  # Saved model weights
+├── model_cards/             # Model cards detailing architecture and performance
+│   ├── solution1_card.md
+│   └── solution2_card.md
+├── outputs/                 # Target directory for generated Prediction CSVs
 └── spec/                    # Coursework specification
 ```
 
 ## How to Run
 
 ### Setup
+Ensure you install the dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
 ### Training
+Each solution has its own modular training scripts. See their respective nested READMEs for in-depth details.
 ```bash
-# Solution 1 (Category _)
-python src/solution1/train.py
+# Solution 1 (Feature Extraction + Stacking)
+python src/solution1/training/preprocess.py --input data/training_data/AV/train.csv --output data/processed_train.pkl
+python src/solution1/training/feature_extraction.py --input data/processed_train.pkl --output src/solution1/features/all_features_train.npy
+python src/solution1/training/train_base_models.py --features src/solution1/features/all_features_train.npy --output_dir models/solution1/
 
-# Solution 2 (Category _)
-python src/solution2/train.py
+# Solution 2 (Example: DeBERTa Base Model)
+python -m src.solution2.deberta_model.train
 ```
 
-### Evaluation (Dev Set)
+### Inference (Generating Final Submission)
+To generate the final submission-ready CSVs (containing a single `prediction` column), use the top-level inference scripts created for each solution:
 ```bash
-python src/evaluation/evaluate.py --predictions outputs/dev_preds_s1.csv --gold data/training_data/[TRACK]/dev.csv
+# Generate submission for Solution 1 (Assuming features are extracted)
+python -m src.solution1.predict --features src/solution1/features/all_features_test.npy --output outputs/solution1/predictions_test.csv
+
+# Generate submission for Solution 2 (Assuming base model probs are computed)
+python -m src.solution2.predict --split test
 ```
 
-### Inference (Demo)
-Open the corresponding notebook in `notebooks/` and run all cells:
-- `demo_solution1.ipynb` — loads saved model, generates predictions
-- `demo_solution2.ipynb` — loads saved model, generates predictions
+### Evaluation (Standalone)
+We enforce a strict separation between training and evaluation logic. The unified evaluation script can be run on any outputs against a gold standard CSV:
+```bash
+python src/evaluate.py \
+    --predictions outputs/solution2/predictions_dev.csv \
+    --gold data/training_data/AV/dev.csv
+```
 
-## Model Links
+### Interactive Demo
+Open the corresponding notebook in `notebooks/` and run all cells for an interactive walkthrough:
+- `demo_solution1.ipynb` — Loads saved models, generates predictions using stacking.
+- `demo_solution2.ipynb` — Loads saved Transformer ensemble, generates predictions.
 
-| Solution | Category | Cloud Link |
+## Model Cards & Cloud Links
+
+Please refer to the `model_cards/` directory to read detailed specifications for both solutions:
+- [Solution 1 Model Card](model_cards/solution1_card.md)
+- [Solution 2 Model Card](model_cards/solution2_card.md)
+
+Weights are saved externally due to GitHub file size limitations.
+
+| Solution | Style | Cloud Link |
 |----------|----------|------------|
-| Solution 1 | _ | [OneDrive link] |
-| Solution 2 | _ | [OneDrive link] |
+| Solution 1 | Traditional M.L. Stacking | [OneDrive link] |
+| Solution 2 | Large Transformer Meta-Ensemble | [OneDrive link] |
 
 ## Attribution
 
-- [List any reused code / data sources here]
+- **Hugging Face Transformers**: Code for tokenization and model initialization heavily relies on the `transformers` library (Wolf et al., 2020).
+- **Scikit-Learn**: Used for metric computation and core preprocessing inside the Stacking ensemble.
+- **Pre-trained Models**: DeBERTa-v3-large, RoBERTa-large, ELECTRA-large, and XLNet-large pre-trained checkpoint weights are loaded identically from the official Hugging Face hub.
 
 ## Use of Generative AI Tools
 
-- [Declare any AI tools used and their purpose here]
+- **LLM Assistance (Claude/Gemini via IDE)**: Used as an advanced autocomplete and restructuring agent. Functions included generating PyTorch DataLoader boilerplates, writing custom markdown tables for the Model Cards, refactoring directory structures uniformly, and providing boilerplate metric calculation functions. No core machine learning logic or novel architecture design was wholesale generated; AI served solely as an assistive programming layer.

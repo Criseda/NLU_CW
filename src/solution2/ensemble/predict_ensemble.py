@@ -75,8 +75,10 @@ def predict_probs(split: str = "val") -> pd.DataFrame:
             probs_path = paths['dev_probs']
         elif split == "train":
             probs_path = paths['train_probs']
+        elif split == "test":
+            probs_path = paths['test_probs']
         else:
-            raise ValueError(f"Unknown split: {split}. Use 'dev' or 'train'")
+            raise ValueError(f"Unknown split: {split}. Use 'dev', 'train', or 'test'")
         
         print(f"  - Loading {model_name} {split} predictions...")
         model_dfs[model_name] = load_model_predictions(probs_path, model_name)
@@ -167,7 +169,7 @@ def main():
     parser.add_argument(
         "--split",
         default="val",
-        choices=["dev", "train"],
+        choices=["dev", "train", "test"],
         help="Which split to predict on"
     )
     args = parser.parse_args()

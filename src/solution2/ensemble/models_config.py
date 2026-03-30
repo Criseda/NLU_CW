@@ -22,18 +22,22 @@ MODELS = {
     'roberta': {
         'train_probs': os.path.join(OUTPUTS_DIR, "roberta_model", "probs_train.csv"),
         'dev_probs': os.path.join(OUTPUTS_DIR, "roberta_model", "probs_dev.csv"),
+        'test_probs': os.path.join(OUTPUTS_DIR, "roberta_model", "probs_test.csv"),
     },
     'xlnet': {
         'train_probs': os.path.join(OUTPUTS_DIR, "xlnet_model", "probs_train.csv"),
         'dev_probs': os.path.join(OUTPUTS_DIR, "xlnet_model", "probs_dev.csv"),
+        'test_probs': os.path.join(OUTPUTS_DIR, "xlnet_model", "probs_test.csv"),
     },
     'electra': {
         'train_probs': os.path.join(OUTPUTS_DIR, "electra_model", "probs_train.csv"),
         'dev_probs': os.path.join(OUTPUTS_DIR, "electra_model", "probs_dev.csv"),
+        'test_probs': os.path.join(OUTPUTS_DIR, "electra_model", "probs_test.csv"),
     },
     'deberta': {
         'train_probs': os.path.join(OUTPUTS_DIR, "deberta_model", "probs_train.csv"),
         'dev_probs': os.path.join(OUTPUTS_DIR, "deberta_model", "probs_dev.csv"),
+        'test_probs': os.path.join(OUTPUTS_DIR, "deberta_model", "probs_test.csv"),
     },
     # 'minilm': {
     #     'train_probs': os.path.join(OUTPUTS_DIR, "minilm_model", "probs_train.csv"),

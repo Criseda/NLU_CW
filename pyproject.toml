@@ -16,6 +16,8 @@ dependencies = [
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
     "torch>=2.10.0",
-    "torchvision>=0.25.0",
+    "textstat>=0.7.3",
+    "lightgbm>=4.3.0",
+    "spacy>=3.7.0",
     "transformers>=5.2.0",
 ]
