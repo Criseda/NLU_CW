@@ -2,7 +2,7 @@
 
 > **Track:** C — Authorship Verification
 
-This repository contains two distinct solutions for the Authorship Verification shared task, focusing on pairwise sequence classification. 
+This repository contains two distinct solutions for the Authorship Verification shared task, focusing on pairwise sequence classification.
 
 ## Project Structure
 
@@ -27,13 +27,17 @@ NLU_CW/
 ## How to Run
 
 ### Setup
+
 Ensure you install the dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### Training
+
 Each solution has its own modular training scripts. See their respective nested READMEs for in-depth details.
+
 ```bash
 # Solution 1 (Feature Extraction + Stacking)
 python src/solution1/training/preprocess.py --input data/training_data/AV/train.csv --output data/processed_train.pkl
@@ -45,7 +49,9 @@ python -m src.solution2.deberta_model.train
 ```
 
 ### Inference (Generating Final Submission)
+
 To generate the final submission-ready CSVs (containing a single `prediction` column), use the top-level inference scripts created for each solution:
+
 ```bash
 # Generate submission for Solution 1 (Assuming features are extracted)
 python -m src.solution1.predict --features src/solution1/features/all_features_test.npy --output outputs/solution1/predictions_test.csv
@@ -55,7 +61,9 @@ python -m src.solution2.predict --split test
 ```
 
 ### Evaluation (Standalone)
+
 We enforce a strict separation between training and evaluation logic. The unified evaluation script can be run on any outputs against a gold standard CSV:
+
 ```bash
 python src/evaluate.py \
     --predictions outputs/solution2/predictions_dev.csv \
@@ -63,13 +71,16 @@ python src/evaluate.py \
 ```
 
 ### Interactive Demo
+
 Open the corresponding notebook in `notebooks/` and run all cells for an interactive walkthrough:
+
 - `demo_solution1.ipynb` — Loads saved models, generates predictions using stacking.
 - `demo_solution2.ipynb` — Loads saved Transformer ensemble, generates predictions.
 
 ## Model Cards & Cloud Links
 
 Please refer to the `model_cards/` directory to read detailed specifications for both solutions:
+
 - [Solution 1 Model Card](model_cards/solution1_card.md)
 - [Solution 2 Model Card](model_cards/solution2_card.md)
 
