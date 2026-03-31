@@ -24,6 +24,7 @@ models/*
 
 # Don't ignore these placeholder files
 !outputs/.outputs_go_here
+!outputs/Group_17_*.csv
 !models/.saved_models_go_here
 
 # Secrets
