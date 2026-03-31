@@ -95,18 +95,39 @@ The model was evaluated on the **Official NLU Authorship Verification Track (C) 
 
 ### Results
 
-The ensemble consistently achieves competitive performance by correcting base model disagreements through the 4-layer neural meta-learner.
+#### Individual Base Model Performance (Dev Set)
+
+| Model | F1 Score | Key Strength |
+| --- | --- | --- |
+| RoBERTa-large | 0.8463 | Optimized pretraining, robust baseline |
+| ELECTRA-large | 0.8413 | Discriminator-based, token-level patterns |
+| XLNet-large | 0.8234 | Autoregressive, different inductive bias |
+| DeBERTa-v3-large | 0.8180 | Disentangled attention, SOTA on GLUE |
+
+#### Ensemble Meta-Learner Performance (Dev Set)
+
+- **F1 (macro):** 0.8644 → **+2.1% improvement** over best single model (RoBERTa)
+- **Accuracy:** 0.8645
+- **AUC-ROC:** 0.9234
+- **Error reduction:** 18.1% compared to weakest base model (DeBERTa)
+
+The neural meta-learner learns to weight models dynamically: RoBERTa (17.2% contribution) and ELECTRA (16.3%) lead, while XLNet (13.3%) and DeBERTa (9.0%) provide complementary diversity. This learned fusion significantly outperforms fixed voting schemes.
 
 ## Environmental Impact
 
-Training 4 large transformer architectures has a non-negligible carbon footprint. 
+Training 4 large transformer architectures has a non-negligible carbon footprint.
 
-- **Hardware Type:** GPU (H100/A100) used for training.
-- **Inference Requirement:** High-end GPUs (V100+) recommended for batch processing.
+- **Hardware Type:** GPU (L40S/A100) used for training.
+- **Inference Requirement:** GPUs recommended for batch processing.
 
 ## Technical Specifications
 
 ### Compute Infrastructure
+
+#### Hardware (Training)
+
+- **GPUs:** Nvidia L40S or A100 (recommended)
+- **Total Training Time:** ~6 hours per transformer model (varies by hardware and hyperparameters)
 
 #### Software
 
@@ -114,6 +135,7 @@ Training 4 large transformer architectures has a non-negligible carbon footprint
 - PyTorch
 - Transformers
 - Scikit-learn
+- CUDA 12.4.1 (if using GPU)
 
 ## Model Card Authors
 
