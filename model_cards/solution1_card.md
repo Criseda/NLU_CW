@@ -123,7 +123,7 @@ The tight bootstrap CIs (F1 bounded between 69.7%–72.0%) confirm the model's p
 
 #### Confusion Matrix
 
-|  | Predicted Positive | Predicted Negative |
+| | Predicted Positive | Predicted Negative |
 | :--- | :---: | :---: |
 | **Actual Positive** | 2,056 (TP) | 1,000 (FN) |
 | **Actual Negative** | 747 (FP) | 2,190 (TN) |
@@ -162,6 +162,7 @@ A 5-fold stratified cross-validation ablation was run on the 27,643-pair trainin
 | — Function words | 20 | 0.5714 |
 
 **Key findings:**
+
 - Removing the HPC features (GI + info-theoretic) causes a drop of >1.0% F1, justifying the compute overhead.
 - Character N-grams are the strongest standalone signal (0.641 F1 alone), but individual feature groups plateau well below the full ensemble.
 - The stacking architecture enables complementary features to combine symbiotically, driving the collective F1 from ~0.64 to ~0.708.
@@ -169,6 +170,7 @@ A 5-fold stratified cross-validation ablation was run on the 27,643-pair trainin
 ### Evaluation Scripts
 
 Evaluation was conducted using `src/solution1/training/evaluate.py`, which produces:
+
 - Full metric suite with 95% bootstrap confidence intervals (1,000 resamples)
 - Per-feature-group ablation study (5-fold stratified CV)
 - Calibration curve and ECE
