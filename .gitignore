@@ -22,7 +22,7 @@ outputs/*
 # Models
 models/*
 
-# Don't ignore these placeholder files
+# Don't ignore these files
 !outputs/.outputs_go_here
 !outputs/Group_17_*.csv
 !models/.saved_models_go_here
