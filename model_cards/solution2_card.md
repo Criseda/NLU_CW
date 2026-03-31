@@ -27,7 +27,7 @@ This model is a state-of-the-art neural meta-ensemble designed for the COMP34812
 The architecture uses a 4-layer fully-connected neural network with Batch Normalization and Dropout to ensemble the predictions from DeBERTa-v3-large, RoBERTa-large, ELECTRA-large-discriminator, and XLNet-large-cased.
 
 - **Developed by:** Group 17 (NLU Coursework Track C)
-- **Model type:** Neural Meta-Learner (Ensemble)
+- **Model type:** Deep Learning based (Transformer Neural Meta-Ensemble)
 - **Language(s) (NLP):** English
 - **License:** Individual academic use for COMP34812 coursework.
 - **Finetuned from model:** DeBERTa-v3-large, RoBERTa-large, ELECTRA-large-discriminator, XLNet-large-cased.
