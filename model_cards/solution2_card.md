@@ -58,9 +58,120 @@ Performance depends on the context length (max 512 tokens). There is an inherent
 
 For optimal results, ensure target texts are at least 100 tokens long. Requires significant VRAM for efficient inference.
 
+### Known Limitations
+
+- **Context length:** Limited to 512 subword tokens (sequences longer than this are truncated)
+- **Text type:** Optimized for prose; may struggle with code, highly structured text, or non-standard English
+- **Language:** English only (trained on English authorship data)
+- **Bias inheritance:** Model inherits biases from large pre-training corpora (primarily English web text)
+- **Out-of-domain performance:** Limited evaluation on text types significantly different from training distribution
+
 ## How to Get Started with the Model
 
 Refer to the demo notebook `notebooks/demo_solution2.ipynb` for instructions on loading the fine-tuned base models and the neural meta-ensemble.
+
+### Code Example
+
+```python
+import torch
+from pathlib import Path
+from src.solution2.ensemble.predict_ensemble import predict_probs
+
+# Load and run inference
+results_df = predict_probs(split='dev')
+predictions = results_df[['prediction']].copy()
+predictions.to_csv('my_predictions.csv', index=False)
+```
+
+### Input/Output Specifications
+
+**Input CSV format (for custom data):**
+
+- Columns: `text_1`, `text_2`, `label` (label can be 0 or 1)
+- Max length: 512 tokens per text (enforced by tokenizer)
+- Minimum recommended: 100 tokens per text pair for optimal performance
+
+**Output CSV format:**
+
+- Single column: `prediction` (binary: 0 or 1)
+- Optional: `probability` (float 0-1, confidence score)
+
+### Inference Speed
+
+- **Per-pair latency (L40S, batch_size=32):** ~50-100ms
+- **Per-pair latency (CPU, batch_size=1):** ~10-15 seconds
+- **Memory footprint:** 8GB VRAM for all 4 base models + meta-learner
+
+### Reproducibility
+
+- **Random seed:** 42
+- **PyTorch version:** 2.0+
+- **Transformers version:** 4.30+
+- **Scikit-learn version:** 1.3+
+
+### Training Code Examples
+
+**1. Fine-tune a Single Base Model (e.g., DeBERTa):**
+
+```bash
+python -m src.solution2.deberta_model.train
+```
+
+Or programmatically:
+
+```python
+from src.solution2.deberta_model.train import main
+from src.solution2.deberta_model import config
+
+# Customize config if needed
+config.LEARNING_RATE = 2e-5
+config.EPOCHS = 4
+config.BATCH_SIZE = 32
+
+main()
+```
+
+**2. Calibrate All Base Models:**
+
+```bash
+python -m src.solution2.ensemble.calibrate_base_models
+```
+
+This generates calibrated probability predictions from all 4 base models on the dev set and saves calibrators.
+
+**3. Train the Ensemble Meta-Learner:**
+
+```bash
+python -m src.solution2.ensemble.train_ensemble
+```
+
+Or programmatically:
+
+```python
+from src.solution2.ensemble.train_ensemble import main
+
+main()
+# Saves trained meta-learner to models/solution2/ensemble/meta_learner.pt
+```
+
+**4. Complete Pipeline (Training + Inference):**
+
+```bash
+# Step 1: Fine-tune all 4 transformers
+python -m src.solution2.deberta_model.train
+python -m src.solution2.roberta_model.train_roberta
+python -m src.solution2.electra_model.train_electra
+python -m src.solution2.xlnet_model.train_xlnet
+
+# Step 2: Calibrate
+python -m src.solution2.ensemble.calibrate_base_models
+
+# Step 3: Train ensemble
+python -m src.solution2.ensemble.train_ensemble
+
+# Step 4: Generate predictions
+python -m src.solution2.predict --split test
+```
 
 ## Training Details
 
