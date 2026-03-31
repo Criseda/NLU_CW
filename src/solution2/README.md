@@ -107,7 +107,7 @@ src/solution2/
    pip install -r requirements.txt
    ```
 
-2. **Pre-trained Models**: All base model weights and the meta-learner are stored on Google Drive (see [Model Links](#model-links) below). These are automatically downloaded when running inference.
+2. **Pre-trained Models**: All base model weights and the meta-learner are stored on [Google Drive](https://drive.google.com/drive/folders/1arKIOSEAZxAz4P_-MotKRo0aFjFg-QGp?usp=sharing).
 
 3. **GPU** (recommended): Inference works on CPU but is very slow. 4× transformer models require ~8GB VRAM for efficient batch processing.
 
@@ -147,6 +147,8 @@ These produce:
 
 - `outputs/solution2/predictions_dev.csv`
 - `outputs/solution2/predictions_train.csv`
+
+All inference outputs have been saved to [Google Drive](https://drive.google.com/drive/folders/1saMnwl_u3_FZMiDiWzap-eyhmXymznFx?usp=sharing)
 
 ---
 
