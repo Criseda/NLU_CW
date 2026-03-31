@@ -187,8 +187,42 @@ Hugging Face default tokenizers for each transformer architecture were used.
 
 #### Training Hyperparameters
 
-- **Base Transformers:** BCEWithLogitsLoss, AdamW, early stopping.
-- **Ensemble Meta-Learner:** 4-layer fully-connected network with Batch Normalization and Dropout.
+**Base Transformers (DeBERTa, RoBERTa, ELECTRA, XLNet):**
+
+| Hyperparameter | DeBERTa | RoBERTa | ELECTRA | XLNet |
+| --- | --- | --- | --- | --- |
+| Max Epochs | 5 | 20* | 20* | 20* |
+| Batch Size | 8 | 8 | 8 | 8 |
+| Gradient Accumulation | 2 | 2 | 2 | 2 |
+| **Effective Batch Size** | 16 | 16 | 16 | 16 |
+| Learning Rate | 1e-5 | 1e-5 | 1.5e-5 | 1e-5 |
+| Weight Decay | 0.01 | 0.01 | 0.01 | 0.01 |
+| Warmup Ratio | 10% | 10% | 10% | 10% |
+| Max Gradient Norm | 1.0 | 1.0 | 1.0 | 1.0 |
+| Loss Function | BCEWithLogitsLoss | BCEWithLogitsLoss | BCEWithLogitsLoss | BCEWithLogitsLoss |
+| Optimizer | AdamW | AdamW | AdamW | AdamW |
+| Mixed Precision (FP16) | ✓ | ✓ | ✓ | ✓ |
+| Evaluation Interval | 500 steps | 500 steps | 500 steps | 500 steps |
+| Early Stopping Patience | - | 3 epochs | 3 epochs | 3 epochs |
+
+*\*Early stopping will halt training if F1 on dev set plateaus.*
+
+**Ensemble Meta-Learner (4-layer NN):**
+
+| Hyperparameter | Value |
+| --- | --- |
+| Hidden Layer Size | 128 |
+| Dropout | 0.3 |
+| Batch Normalization | Yes (between layers) |
+| Learning Rate | 0.001 |
+| Weight Decay (L2) | 1e-4 |
+| Max Epochs | 100 |
+| Batch Size | 32 |
+| Early Stopping Patience | 15 epochs |
+| Optimizer | AdamW |
+| Loss Function | Focal Loss (α=0.25, γ=2.0) |
+| Metric Monitored | Macro F1 Score |
+| Random Seed | 42 |
 
 ## Evaluation
 
