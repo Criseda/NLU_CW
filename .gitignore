@@ -20,7 +20,7 @@ data/*.npy
 outputs/*
 
 # Models
-models/*
+
 
 # Don't ignore these files
 !outputs/.outputs_go_here
