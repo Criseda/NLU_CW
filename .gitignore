@@ -37,6 +37,7 @@ src/solution1/HPC_logs/*
 src/solution1/results/*
 !src/solution1/results/*.md
 !src/solution1/results/*.py
+!src/solution1/results/plots/*
 
 # Solution 2
 src/solution2/*_model/logs/*
