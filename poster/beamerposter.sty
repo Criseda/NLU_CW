@@ -184,30 +184,30 @@
   \InputIfFileExists{\printerToUse}{\typeout{load \printerToUse}}{\beamerposter@Error{\printerToUse\space not found!}{Please use another printer definition file}}
 \fi
 
-%% scalable vector fonts (scale 0.76)
-\renewcommand*{\tiny}{\fontsize{9}{11}\selectfont}
-\renewcommand*{\scriptsize}{\fontsize{11}{13}\selectfont}
-\renewcommand*{\footnotesize}{\fontsize{13}{16}\selectfont}
-\renewcommand*{\small}{\fontsize{16}{20}\selectfont}
-\renewcommand*{\normalsize}{\fontsize{19}{24}\selectfont}
-\renewcommand*{\large}{\fontsize{23}{29}\selectfont}
-\renewcommand*{\Large}{\fontsize{27}{34}\selectfont}
-\renewcommand*{\LARGE}{\fontsize{33}{41}\selectfont}
-\renewcommand*{\huge}{\fontsize{40}{50}\selectfont}
-\renewcommand*{\Huge}{\fontsize{47}{59}\selectfont}
-\newcommand*{\veryHuge}{\fontsize{57}{71}\selectfont}
-\newcommand*{\VeryHuge}{\fontsize{68}{85}\selectfont}
-\newcommand*{\VERYHuge}{\fontsize{82}{103}\selectfont}
+%% scalable vector fonts (scaled for A1)
+\renewcommand*{\tiny}{\fontsize{6.5}{8}\selectfont}
+\renewcommand*{\scriptsize}{\fontsize{8}{9}\selectfont}
+\renewcommand*{\footnotesize}{\fontsize{9.5}{11.5}\selectfont}
+\renewcommand*{\small}{\fontsize{11.5}{14}\selectfont}
+\renewcommand*{\normalsize}{\fontsize{13.5}{17}\selectfont}
+\renewcommand*{\large}{\fontsize{16.5}{21}\selectfont}
+\renewcommand*{\Large}{\fontsize{19}{24}\selectfont}
+\renewcommand*{\LARGE}{\fontsize{23.5}{29}\selectfont}
+\renewcommand*{\huge}{\fontsize{28.5}{35}\selectfont}
+\renewcommand*{\Huge}{\fontsize{33.5}{42}\selectfont}
+\newcommand*{\veryHuge}{\fontsize{40.5}{50}\selectfont}
+\newcommand*{\VeryHuge}{\fontsize{48}{60}\selectfont}
+\newcommand*{\VERYHuge}{\fontsize{58}{73}\selectfont}
 
 % set the normalfont (default)
 \renewcommand*{\normalfont}{\normalsize}
 
-% adapt list indention (scale 0.76)
-\setlength{\leftmargini}{3.0em}%
-\setlength{\leftmarginii}{1.7em}%
-\setlength{\leftmarginiii}{1.4em}%
-\setlength{\labelwidth}{0.76em}%
-\setlength{\labelsep}{0.76em}%
+% adapt list indention (scale for A1)
+\setlength{\leftmargini}{2.1em}%
+\setlength{\leftmarginii}{1.2em}%
+\setlength{\leftmarginiii}{1.0em}%
+\setlength{\labelwidth}{0.54em}%
+\setlength{\labelsep}{0.54em}%
 
 % define bib item template with larger graphic
 \defbeamertemplate{bibliography item}{beamerposterarticle}

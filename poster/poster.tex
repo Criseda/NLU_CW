@@ -1,7 +1,7 @@
 \documentclass[final,t]{beamer}
 
-% A0 landscape — scale=0.76 fills out the whitespace wonderfully
-\usepackage[orientation=landscape,size=a0,scale=0.76]{beamerposter}
+% A1 landscape mandated by brief — scaled dynamically
+\usepackage[orientation=landscape,size=a1,scale=0.76]{beamerposter}
 
 \usetheme{zurichposter}
 \usepackage{graphicx}
@@ -179,7 +179,7 @@
         \end{column}
         \begin{column}{0.50\linewidth}
           \begin{center}
-            \includegraphics[width=0.85\linewidth]{feature_groups.pdf}\par\vspace*{0.2ex}
+            \includegraphics[width=0.81\linewidth]{feature_groups.pdf}\par\vspace*{0.2ex}
             {\scriptsize\textit{Fig.\,1 — Sol\,1 feature group composition.}}
           \end{center}
           \vspace{0.2ex}
@@ -201,7 +201,7 @@
       \vspace{0.8ex}
       \begin{center}
       \begin{tikzpicture}[
-        x=1.05cm, y=1.05cm,
+        x=0.95cm, y=0.95cm,
         encoder/.style={
           rectangle, rounded corners=5pt,
           fill=uompurple!12,
@@ -287,7 +287,7 @@
 
       \vspace{0.2ex}
       \begin{center}
-        \includegraphics[width=0.70\linewidth]{performance_comparison.pdf}\par\vspace*{0.2ex}
+        \includegraphics[width=0.64\linewidth]{performance_comparison.pdf}\par\vspace*{0.2ex}
         {\small\textit{Fig.\,2 — Macro-F1 with 95\,\% confidence intervals.}}
       \end{center}
 
@@ -337,17 +337,23 @@
 
       \vspace{0.2ex}
       \begin{center}
-        \includegraphics[width=0.38\linewidth]{confusion_matrix.pdf}\par\vspace*{0.2ex}
+        \includegraphics[width=0.35\linewidth]{confusion_matrix.pdf}\par\vspace*{0.2ex}
         {\scriptsize\textit{Fig.\,3 — Meta-ensemble dev set predictions.}}
       \end{center}
 
-      \par\rule{0pt}{3.0cm}
     \end{exampleblock}
   \end{column}
 
   % --- Column 3.3: References & Acks
   \begin{column}{0.31\linewidth}
     \begin{exampleblock}{8.\ References \& Acknowledgements}
+      \textbf{Limitations \& Ethical Considerations}\par
+      \vspace*{0.2ex}
+      \small
+      Sol\,2's transformer ensemble incurs high computational inference costs, making it unsuitable for rapid deployment. Ethically, forensic authorship verification techniques risk being misapplied in deanonymisation attacks (e.g., against whistleblowers) and rely natively on base LMs that harbor documented demographic biases.
+
+      \vspace{0.6ex}
+      \normalsize
       \textbf{References}
       \vspace{0.4ex}
       
@@ -373,7 +379,7 @@
       organisers for providing the shared-task infrastructure, datasets,
       and evaluation scripts.
 
-      \par\rule{0pt}{6.0cm}
+      \par\rule{0pt}{0.1cm}
     \end{exampleblock}
   \end{column}
 
