@@ -1,0 +1,152 @@
+ \ProvidesPackage{beamerthemezurichposter}
+
+\RequirePackage{tikz}
+\usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,calc}
+\RequirePackage{amsmath,amssymb,bm,amsthm}
+\usefonttheme{default}
+
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{navigation symbols}{}  % no navigation on a poster
+
+% chameleon
+\definecolor{tangocolordarkchameleon}{HTML}{4E9A06}
+\definecolor{tangocolormediumchameleon}{HTML}{73D216}
+\definecolor{tangocolorlightchameleon}{HTML}{8AE234}
+
+% tango sky blue
+\definecolor{tangocolordarkskyblue}{HTML}{204A87}
+\definecolor{tangocolormediumskyblue}{HTML}{5081C7}
+\definecolor{tangocolorlightskyblue}{HTML}{7FA7DF}
+
+% Vector colors
+\definecolor{tangocolorvectorred}{HTML}{E40086}
+\definecolor{tangocolorvectorlightblue}{HTML}{4C6379}
+\definecolor{tangocolorvectordarkblue}{HTML}{07223E}
+
+% tango plum
+\definecolor{tangocolordarkplum}{HTML}{5C3566}
+\definecolor{tangocolormediumplum}{HTML}{75507B}
+\definecolor{tangocolorlightplum}{HTML}{AD7FA8}
+
+% scarlet red
+\definecolor{tangocolordarkscarletred}{HTML}{A40000}
+\definecolor{tangocolormediumscarletred}{HTML}{CC0000}
+\definecolor{tangocolorlightscarletred}{HTML}{EF2929}
+
+% aluminium
+\definecolor{tangocolordarkaluminium}{HTML}{BABDB6}
+\definecolor{tangocolormediumaluminium}{HTML}{D3D3D3}
+\definecolor{tangocolorlightaluminium}{HTML}{FFFFFF}
+
+% gray
+\definecolor{tangocolorlightgray}{HTML}{888A85}
+
+% University of Manchester Purple
+\definecolor{uompurple}{HTML}{660099}
+\definecolor{uomdarkpurple}{HTML}{330066}
+
+% body colors and fonts
+\setbeamercolor*{normal text}{fg=black,bg=tangocolormediumaluminium}
+
+% headline colors and fonts
+\setbeamercolor{headline}{fg=white,bg=uomdarkpurple}
+\setbeamercolor{title in headline}{fg=white}
+
+% block environment
+\setbeamercolor*{block body}{bg=tangocolorlightaluminium,fg=black}
+\setbeamercolor*{block title}{fg=white,bg=uompurple}
+\setbeamerfont{block title}{size=\large,series=\bf}
+
+% example environment
+\setbeamercolor{block title example}{fg=white,bg=uompurple}
+\setbeamercolor{block body example}{bg=tangocolorlightaluminium,fg=black}
+\setbeamercolor{example text}{fg=uompurple}
+
+
+% headline
+\setbeamertemplate{headline}{
+  \leavevmode
+
+  \begin{beamercolorbox}[wd=\paperwidth]{headline}
+    \begin{columns}[T]
+      % Left logo — wide UoM banner (2.36:1 aspect ratio), needs room
+      \begin{column}{.20\paperwidth}
+        \vskip1.8cm
+        \centering
+        \includegraphics[width=0.85\linewidth,keepaspectratio]{UOM_logo.png}
+        \vskip1.8cm
+      \end{column}
+      
+      % Centre title block
+      \begin{column}{.60\paperwidth}
+        \vskip2cm
+        \centering
+        \usebeamercolor{title in headline}{
+           \color{fg}\textbf{\Huge{\inserttitle}}\par\vskip1.2ex}
+        \usebeamercolor{author in headline}{\color{fg}\large{\insertauthor}\par\vskip0.8ex}
+        \usebeamercolor{institute in headline}{\color{fg}\large{\insertinstitute}\par\vskip1ex}
+        \vskip0.5cm
+      \end{column}
+
+      % Right logo — mirror of left
+      \begin{column}{.20\paperwidth}
+        \vskip1.8cm
+        \centering
+        \includegraphics[width=0.85\linewidth,keepaspectratio]{UOM_logo.png}
+        \vskip1.8cm
+      \end{column}
+      
+    \end{columns}
+  \end{beamercolorbox}
+
+  \begin{beamercolorbox}[wd=\paperwidth]{lower separation line head}
+    \rule{0pt}{3pt}
+  \end{beamercolorbox}
+}
+
+
+\setbeamertemplate{block begin}{
+  \vskip.75ex
+  \begin{beamercolorbox}[rounded=true,leftskip=1cm,colsep*=.75ex]{block title}%
+    \usebeamerfont*{block title}\insertblocktitle
+  \end{beamercolorbox}%
+  {\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body}%
+  \begin{beamercolorbox}[rounded=true,colsep*=.75ex,sep=.75ex,vmode]{block body}%
+    \ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+  }
+  \setbeamertemplate{block end}{
+  \end{beamercolorbox}
+}
+
+\setbeamertemplate{block alerted begin}{
+  \vskip.75ex
+  \begin{beamercolorbox}[rounded=true,leftskip=1cm,colsep*=.75ex]{block title alerted}%
+    \usebeamerfont*{block title alerted}\insertblocktitle
+  \end{beamercolorbox}%
+  {\ifbeamercolorempty[bg]{block alerted body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body alerted}%
+  \begin{beamercolorbox}[rounded=true,colsep*=.75ex,sep=.75ex,vmode]{block body alerted}%
+    \ifbeamercolorempty[bg]{block body alerted}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+  }
+
+\setbeamertemplate{block alerted end}{
+  \end{beamercolorbox}
+}
+
+\setbeamerfont{block title example}{size=\large}
+
+\setbeamertemplate{block example begin}{
+  \vskip.75ex
+  \begin{beamercolorbox}[rounded=true,leftskip=1cm,colsep*=.75ex]{block title example}%
+    \usebeamerfont*{block title example}\insertblocktitle
+  \end{beamercolorbox}%
+  {\ifbeamercolorempty[bg]{block example body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body example}%
+  \begin{beamercolorbox}[rounded=true,colsep*=.75ex,sep=.75ex,vmode]{block body example}%
+    \ifbeamercolorempty[bg]{block body example}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+  }
+
+\setbeamertemplate{block example end}{
+  \end{beamercolorbox}
+}

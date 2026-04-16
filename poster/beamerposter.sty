@@ -1,0 +1,215 @@
+% Copyright 2007 by 
+% Philippe Dreuw <dreuw@cs.rwth-aachen.de> and 
+% Thomas Deselaers <deselaers@cs.rwth-aachen.de>
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+%
+% ChangeLog:
+% 1.12 - bugfixed fontscale/myfontscale indention calculation
+%      - added beamerposterarticle icon format
+% 1.11 - removed incompatible paralist package, used beamer's leftmargin lengths instead for indention
+% 1.10 - improved PackageWarning and PackageInfo outputs
+% 1.09 - bugfixed the list indention problem, can be overwritten by user with the \setdefaultleftmargin command.
+%      - added 'printer' option for external printer definition files
+% 1.08 - supports external printer definition files
+%      - added grid mode option
+%      - renamed beamer specific variables
+%      - added font size normalization, so that scale=1.0 is the default font size for all DIN-A(n) sizes
+% 1.07 - bugfixed custom size handling, portrait or landscape settings are ignored now
+% 1.06 - added the type1cm package for scalable math fonts
+% 1.05 - added version check for xkeyval package
+% 1.04 - added custom size handling
+% 1.03 - improved predefined size handling
+% 1.02 - minor bugfixes
+% 1.01 - bugfixed size handling
+% 1.00 - first beamerposter release
+%
+\def\beamerposter@name{beamerposter}
+\def\beamerposter@version{1.12}
+\def\beamerposter@date{2010/11/18}
+\def\beamerposter@msg{latex-beamer poster extension}
+\def\beamerposter@releaseinfo{\beamerposter@date \space v.\beamerposter@version \space \beamerposter@msg}
+\def\beamerposter@Error#1#2{\PackageError{\beamerposter@name}{#1}{#2}}
+\def\beamerposter@Warning#1{\PackageWarning{\beamerposter@name}{#1}}
+\def\beamerposter@Info#1{\PackageInfo{\beamerposter@name}{#1}}
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{\beamerposter@name}[\beamerposter@releaseinfo]
+\RequirePackage{xkeyval}[2006/11/18]
+%\RequirePackage{type1cm} %% get it from ftp://cam.ctan.org/tex-archive/macros/latex/contrib/type1cm.zip
+%\RequirePackage{fp}
+
+\newif\if@beamerposter@portrait
+\newif\if@beamerposter@customsize
+\newif\if@beamerposter@extern
+\newif\if@beamerposter@debug
+
+
+\DeclareOptionX{size}[a0]{
+  \beamerposter@Info{checking size input, please wait.}
+  \XKV@cc*+[\val\nr]{#1}{a0b,a0,a1,a2,a3,a4,custom}{%
+    \beamerposter@Info{the input \val\ \nr\ was correct, we proceed.}
+    \ifcase\nr\relax
+    %a0b
+    \edef\paperwidthValue{119}
+    \edef\paperheightValue{88}
+    \edef\textwidthValue{116}
+    \edef\textheightValue{88}
+    \edef\fontscale{1.0}
+    \or
+    %a0
+    \edef\paperwidthValue{119.2}
+    \edef\paperheightValue{83.9}
+    \edef\textwidthValue{117.5}
+    \edef\textheightValue{82.9}
+    \edef\fontscale{1.0}
+    \or
+    %a1
+    \edef\paperwidthValue{83.96}
+    \edef\paperheightValue{59.4}
+    \edef\textwidthValue{82.96}
+    \edef\textheightValue{58.4}
+    \edef\fontscale{0.70710678}    % fontscale=(1/sqrt(2))^1
+    \or
+    %a2
+    \edef\paperwidthValue{59.4}
+    \edef\paperheightValue{41.98}
+    \edef\textwidthValue{58.4}
+    \edef\textheightValue{40.98}
+    \edef\fontscale{0.5}           % fontscale=(1/sqrt(2))^2
+    \or
+    %a3
+    \edef\paperwidthValue{41.98}
+    \edef\paperheightValue{29.7}
+    \edef\textwidthValue{40.98}
+    \edef\textheightValue{28.7}
+    \edef\fontscale{0.35355339}    % fontscale=(1/sqrt(2))^3
+    \or
+    %a4
+    \edef\paperwidthValue{29.7}
+    \edef\paperheightValue{21.0}
+    \edef\textwidthValue{28.7}
+    \edef\textheightValue{20.0}
+    \edef\fontscale{0.25}          % fontscale=(1/sqrt(2))^4
+    \or
+    \@beamerposter@customsizetrue
+    \fi    
+  }{%
+    \beamerposter@Warning{the input \val\ was incorrect and was ignored.}
+  }%
+  \beamerposter@Info{finished size input check.}
+}
+\DeclareOptionX{orientation}[portrait]{
+  \beamerposter@Info{checking orientation input, please wait.}
+  \XKV@cc*+[\val\nr]{#1}{portrait,landscape}{%
+    \beamerposter@Info{the input \val\ \nr\ was correct, we proceed.}
+    \ifcase\nr\relax
+    \@beamerposter@portraittrue
+    \or
+    \@beamerposter@portraitfalse
+    \fi    
+  }{%
+    \beamerposter@Warning{the input \val\ was incorrect and was ignored.}
+  }%
+  \beamerposter@Info{finished orientation check.}
+}
+\DeclareOptionX{scale}[1.0]{\edef\myfontscale{#1}\beamerposter@Info{myfontscale=\myfontscale}}
+\DeclareOptionX{width}{\edef\customwidth{#1}\beamerposter@Info{custom poster width=\customwidth}}
+\DeclareOptionX{height}{\edef\customheight{#1}\beamerposter@Info{custom poster height=\customheight}}
+\DeclareOptionX{debug}{\beamerposter@Info{enabled debug mode}\@beamerposter@debugtrue}
+\DeclareOptionX{grid}{\beamerposter@Info{enabling grid}\beamertemplategridbackground[1cm]}% Display a grid to help align images
+\DeclareOptionX{printer}{\edef\printerToUse{#1}\@beamerposter@externtrue}
+\DeclareOptionX*{\beamerposter@Warning{Unknown option ignored: \CurrentOption}}
+%\DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{beamer}}
+\ExecuteOptionsX{size=a0,scale=1.0}
+\ProcessOptionsX\relax
+
+
+
+%%% normalize scale depending on poster size (hardcoded for a0 landscape, scale 0.95)
+\edef\myfontscale{0.95}
+
+%% swap sizes for portrait orientation
+\if@beamerposter@portrait
+  \newdimen\tmp
+  \setlength{\tmp}{\paperwidthValue cm}
+  \setlength{\paperwidth}{\paperheightValue cm}
+  \setlength{\paperheight}{\tmp}
+  \setlength{\tmp}{\textwidthValue cm}
+  \setlength{\textwidth}{\textheightValue cm}
+  \setlength{\textheight}{\tmp}
+\else
+  \setlength{\paperwidth}{\paperwidthValue cm}
+  \setlength{\paperheight}{\paperheightValue cm}
+  \setlength{\textwidth}{\textwidthValue cm}
+  \setlength{\textheight}{\textheightValue cm}
+\fi
+
+%% overwrite dimensions if custom size
+\if@beamerposter@customsize
+  \setlength{\paperwidth}{\customwidth cm}
+  \setlength{\paperheight}{\customheight cm}
+  \setlength{\textwidth}{\paperwidth}
+  \addtolength{\textwidth}{-1cm}
+  \setlength{\textheight}{\paperheight}
+  \addtolength{\textheight}{-1cm}
+\fi
+
+%% Setting proper dimensions for a DIN A0 printer
+\setlength{\headheight}{0 cm}
+\setlength{\headsep}{0 cm}
+\setlength{\topmargin}{-12.7 mm}     % -1in +1.47cm
+\setlength{\oddsidemargin}{-25.4 mm} % -1in +0.4cm
+
+%% For the page layout
+\beamerposter@Info{paperwidth=\the\paperwidth, paperheight=\the\paperheight}
+\beamerposter@Info{textwidth=\the\textwidth, textwidth=\the\textheight}
+\beamerposter@Info{fontscale=\fontscale, myfontscale=\myfontscale}
+\geometry{
+  paperwidth=\the\paperwidth,
+  paperheight=\the\paperheight,
+  hmargin=1cm,%
+  vmargin=0cm,%
+  head=0.5cm, % 
+  headsep=0pt,%
+  foot=0.5cm  % 
+}
+
+%% load printer definitions from file (e.g. \usepackage[printer=rwth-glossy-uv.df]{beamerposter}")
+\if@beamerposter@extern
+  \InputIfFileExists{\printerToUse}{\typeout{load \printerToUse}}{\beamerposter@Error{\printerToUse\space not found!}{Please use another printer definition file}}
+\fi
+
+%% scalable vector fonts (scale 0.76)
+\renewcommand*{\tiny}{\fontsize{9}{11}\selectfont}
+\renewcommand*{\scriptsize}{\fontsize{11}{13}\selectfont}
+\renewcommand*{\footnotesize}{\fontsize{13}{16}\selectfont}
+\renewcommand*{\small}{\fontsize{16}{20}\selectfont}
+\renewcommand*{\normalsize}{\fontsize{19}{24}\selectfont}
+\renewcommand*{\large}{\fontsize{23}{29}\selectfont}
+\renewcommand*{\Large}{\fontsize{27}{34}\selectfont}
+\renewcommand*{\LARGE}{\fontsize{33}{41}\selectfont}
+\renewcommand*{\huge}{\fontsize{40}{50}\selectfont}
+\renewcommand*{\Huge}{\fontsize{47}{59}\selectfont}
+\newcommand*{\veryHuge}{\fontsize{57}{71}\selectfont}
+\newcommand*{\VeryHuge}{\fontsize{68}{85}\selectfont}
+\newcommand*{\VERYHuge}{\fontsize{82}{103}\selectfont}
+
+% set the normalfont (default)
+\renewcommand*{\normalfont}{\normalsize}
+
+% adapt list indention (scale 0.76)
+\setlength{\leftmargini}{3.0em}%
+\setlength{\leftmarginii}{1.7em}%
+\setlength{\leftmarginiii}{1.4em}%
+\setlength{\labelwidth}{0.76em}%
+\setlength{\labelsep}{0.76em}%
+
+% define bib item template with larger graphic
+\defbeamertemplate{bibliography item}{beamerposterarticle}
+{\lower5pt\hbox{\scalebox{2.8}{\pgfuseimage{beamericonarticle}}}}
+

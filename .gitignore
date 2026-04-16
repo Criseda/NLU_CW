@@ -20,7 +20,9 @@ data/*.npy
 outputs/*
 
 # Models
+models/solution1/*
 models/solution2/*
+*.joblib
 
 # Don't ignore these files
 !outputs/.outputs_go_here
@@ -40,4 +42,4 @@ src/solution1/results/*
 !src/solution1/results/plots/*
 
 # Solution 2
-src/solution2/*_model/logs/*
+src/solution2/*_model/logs/**.joblib
